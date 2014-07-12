@@ -712,7 +712,18 @@ Vehicles';
 	public static function create_product() {
 		$user_id = self::get_user_id(); 
 		$title = self::get_title();
+		$i = 0;
+		while( ( $i < 99 ) ) {
+			if ( get_page_by_title( $title, OBJECT, 'product' ) ) {
+				$title .= " " . self::get_title();
+			} else {
+				break;
+			}
+			$i++;
+		}
+
 		$content = self::get_content();
+
 		$post_id = wp_insert_post( array(
 			'post_type' => 'product',
 			'post_title' => $title,
@@ -721,6 +732,10 @@ Vehicles';
 			'post_author' => $user_id
 		) );
 		if ( !( $post_id instanceof WP_Error ) ) {
+
+			// price
+			$price = wc_format_decimal( floatval( rand( 1, 10000 ) ) / 100.0 );
+			update_post_meta( $post_id, '_price', $price );
 
 			// add categories
 			$terms = array();
