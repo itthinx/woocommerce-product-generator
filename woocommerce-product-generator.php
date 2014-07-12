@@ -749,6 +749,7 @@ Vehicles';
 
 			// add tags
 			$tags = explode( " ", $title );
+			$tags[] = 'progen';
 			$potential = explode( " ", $content );
 			$n = count( $potential );
 			$t_max = rand( 1, 7 );
