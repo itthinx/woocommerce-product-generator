@@ -28,12 +28,16 @@
  * License: GPLv3
  */
 
+define( 'WOOPROGEN_PLUGIN_VERSION', '1.0.0' );
 define( 'WOOPROGEN_PLUGIN_DOMAIN', 'woocommerce-product-generator' );
+define( 'WOOPROGEN_PLUGIN_URL', WP_PLUGIN_URL . '/woocommerce-product-generator' );
 
 /**
  * Product Generator.
  */
 class WooCommerce_Product_Generator {
+
+	const MAX_PER_RUN = 100;
 
 	const IMAGE_WIDTH = 512;
 	const IMAGE_HEIGHT = 512;
@@ -537,6 +541,7 @@ Vehicles';
 		if ( is_admin() ) {
 			add_filter( 'plugin_action_links_'. plugin_basename( __FILE__ ), array( __CLASS__, 'admin_settings_link' ) );
 		}
+		add_action( 'init', array( __CLASS__, 'wp_init' ) );
 	}
 
 	/**
@@ -556,7 +561,7 @@ Vehicles';
 	 */
 	public static function admin_menu() {
 		if ( self::woocommerce_is_active() ) {
-			add_submenu_page(
+			$page = add_submenu_page(
 				'woocommerce',
 				'Product Generator',
 				'Product Generator',
@@ -564,7 +569,12 @@ Vehicles';
 				'product-generator',
 				array( __CLASS__, 'generator' )
 			);
+			add_action( 'load-' . $page, array( __CLASS__, 'load' ) );
 		}
+	}
+	
+	public static function load() {
+		wp_register_script( 'product-generator', WOOPROGEN_PLUGIN_URL . '/js/product-generator.js', array( 'jquery' ), WOOPROGEN_PLUGIN_VERSION, true );
 	}
 
 	/**
@@ -580,11 +590,34 @@ Vehicles';
 		return $links;
 	}
 
+	/**
+	 * AJAX request handler.
+	 * 
+	 * If a valid product generator request is recognized,
+	 * it runs a generation cycle and then produces the JSON-encoded response
+	 * containing the current number of published products held in the 'total'
+	 * property.
+	 */
+	public static function wp_init() {
+		if (
+			isset( $_REQUEST['product_generator'] ) && 
+			wp_verify_nonce( $_REQUEST['product_generator'], 'product-generator-js' )
+		) {
+			// @todo run generator
+			$n_products = self::get_product_count();
+			$result = array( 'total' => $n_products );
+			echo json_encode( $result );
+			exit;
+		}
+	}
+
 	public static function generator() {
 		if ( !current_user_can( 'manage_woocommerce' ) ) {
 			wp_die( __( 'Access denied.', WOOPROGEN_PLUGIN_DOMAIN ) );
 		}
 		if ( self::woocommerce_is_active() ) {
+
+			wp_enqueue_script( 'product-generator' );
 
 			if ( isset( $_POST['action'] ) && ( $_POST['action'] == 'save' ) && wp_verify_nonce( $_POST['product-generator'], 'admin' ) ) {
 				$limit  = !empty( $_POST['titles'] ) ? intval( trim( $_POST['titles'] ) ) : self::DEFAULT_LIMIT;
@@ -675,11 +708,15 @@ Vehicles';
 			echo '</div>';
 			echo '</form>';
 			echo '</div>';
-			
+
+			echo '<h2>';
+			echo __( 'Single Run', WOOPROGEN_PLUGIN_DOMAIN );
+			echo '</h2>';
+
 			echo '<div class="generate">';
 			echo '<form name="generate" method="post" action="">';
 			echo '<div>';
-			
+
 			echo '<p>';
 			echo '<label>';
 			echo __( 'Generate up to &hellip;', WOOPROGEN_PLUGIN_DOMAIN );
@@ -698,7 +735,82 @@ Vehicles';
 			echo '</div>';
 			echo '</form>';
 			echo '</div>';
+
+			echo '<h2>';
+			echo __( 'Continuous AJAX Run', WOOPROGEN_PLUGIN_DOMAIN );
+			echo '</h2>';
+
+			echo '<div class="buttons">';
+			echo sprintf( '<input class="button" type="button" id="product-generator-run" name="product-generator-run" value="%s" />', __( 'Run', WOOPROGEN_PLUGIN_DOMAIN ) );
+			echo ' ';
+			echo sprintf( '<input class="button" type="button" id="product-generator-stop" name="product-generator-stop" value="%s" />', __( 'Stop', WOOPROGEN_PLUGIN_DOMAIN ) );
+			echo '</div>';
+
+			echo '<div id="product-generator-blinker"></div>';
+			echo '<div id="product-generator-status"></div>';
+			echo '<div id="product-generator-update"></div>';
+
+			$js_nonce = wp_create_nonce( 'product-generator-js' );
+
+			echo '<script type="text/javascript">';
+			echo 'if ( typeof jQuery !== "undefined" ) {';
+			echo 'jQuery(document).ready(function(){';
+			echo 'jQuery("#product-generator-run").click(function(e){';
+			echo 'e.stopPropagation();';
+			echo sprintf(
+				'ixprogen.start("%s");',
+				add_query_arg(
+					array(
+						'product_generator' => $js_nonce
+					),
+					admin_url( 'admin-ajax.php' )
+				)
+			);
+			echo '});'; // run click
+			echo 'jQuery("#product-generator-stop").click(function(e){';
+			echo 'e.stopPropagation();';
+			echo 'ixprogen.stop();';
+			echo '});'; // stop click
+			echo '});'; // ready
+			echo '}';
+			echo '</script>';
 		}
+	}
+
+	/**
+	 * 
+	 * @param unknown_type $n
+	 */
+	public static function run( $n ) {
+		
+		$_n = $n;
+		$limit = intval( get_option( 'woocommerce-product-generator-limit', self::DEFAULT_LIMIT ) );
+
+		$n_products = self::get_product_count();
+		if ( $limit < $n_products ) {
+			$n = max( $n, $n_products - $limit );
+			$n = min( $n, self::MAX_PER_RUN );
+			if ( $n > 0 ) {
+				for ( $i = 0; $i < $n; $i++ ) {
+					self::create_product();
+				}
+			}
+		}
+	}
+
+	/**
+	 * Returns the total number of published products.
+	 * 
+	 * @return int
+	 */
+	public static function get_product_count() {
+		//$counts = wp_count_posts( 'product' ); // <-- nah ... :|
+		global $wpdb;
+		return intval( $wpdb->get_var( "SELECT count(*) FROM wp_posts WHERE post_type = 'product' and post_status = 'publish'" ) );
+	}
+
+	public static function stop() {
+		
 	}
 
 	public static function create_product() {
