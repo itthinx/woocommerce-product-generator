@@ -610,7 +610,6 @@ Vehicles';
 					}
 				}
 			}
-			
 
 			$limit = get_option( 'woocommerce-product-generator-limit', self::DEFAULT_LIMIT );
 			$titles = stripslashes( get_option( 'woocommerce-product-generator-titles', self::DEFAULT_TITLES ) );
@@ -623,6 +622,16 @@ Vehicles';
 			echo '<h1>';
 			echo __( 'Product Generator', WOOPROGEN_PLUGIN_DOMAIN );
 			echo '</h1>';
+
+			echo '<div>';
+			echo __( 'This produces demo products for testing purposes.', WOOPROGEN_PLUGIN_DOMAIN );
+			echo ' ';
+			echo __( 'It is <strong>NOT</strong> recommended to use this on a production site.', WOOPROGEN_PLUGIN_DOMAIN );
+			echo ' ';
+			echo __( 'The plugin will <strong>NOT</strong> clean up the data it has created.', WOOPROGEN_PLUGIN_DOMAIN );
+			echo ' ';
+			echo __( 'The plugin will create a <em>product-generator</em> user in the role of a <em>Shop Manager</em>.', WOOPROGEN_PLUGIN_DOMAIN );
+			echo '</div>';
 
 			echo '<div class="settings">';
 			echo '<form name="settings" method="post" action="">';
@@ -689,23 +698,6 @@ Vehicles';
 			echo '</div>';
 			echo '</form>';
 			echo '</div>';
-
-// 			echo '<p>';
-// 			echo __( 'Examples based on the above settings &hellip;', WOOPROGEN_PLUGIN_DOMAIN );
-// 			echo '</p>';
-
-// 			for ( $i = 0; $i < 3 ; $i++ ) {
-// 				echo '<h3>' . self::get_title() . '</h3>';
-// 				echo '<div>' . self::get_content() . '</div>';
-// 			}
-			
-// 			$r = wp_upload_bits( 'pupnase.png', null, self::get_image() );
-// 			echo '<pre>' . var_export( $r, true ) . '</pre>';
-// 			if ( !empty( $r ) && is_array( $r ) && !empty( $r['file'] ) ) {
-				
-// 			}
-// self::create_product();
-
 		}
 	}
 
@@ -788,23 +780,51 @@ Vehicles';
 			}
 		}
 	}
-	
+
+	/**
+	 * Returns the user ID of the product-generator user which is used as the
+	 * author of products generated. The user is created here if it doesn't
+	 * exist yet, with role Shop Manager.
+	 * 
+	 * @return int product-generator user ID
+	 */
 	public static function get_user_id() {
 		$user_id = get_current_user_id();
 		$user = get_user_by( 'login', 'product-generator' );
 		if ( $user instanceof WP_User ) {
 			$user_id = $user->ID;
 		} else {
+
+			$user_pass = wp_generate_password( 12 );
 			$maybe_user_id = wp_insert_user( array(
-				'user_login' => 'product-generator'
+				'user_login' => 'product-generator',
+				'role'       => 'shop_manager',
+				'user_pass'  => $user_pass
 			) );
 			if ( !( $maybe_user_id instanceof WP_Error ) ) {
 				$user_id = $maybe_user_id;
+
+				// notify admin
+				$user = get_userdata( $user_id );
+				$blogname = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
+
+				$message  = sprintf( __( 'Product generator user created on %s:', WOOPROGEN_PLUGIN_DOMAIN ), $blogname ) . "\r\n\r\n";
+				$message .= sprintf( __( 'Username: %s', WOOPROGEN_PLUGIN_DOMAIN ), $user->user_login ) . "\r\n\r\n";
+				$message .= sprintf( __( 'Password: %s', WOOPROGEN_PLUGIN_DOMAIN ), $user_pass ) . "\r\n\r\n";
+				$message .= __( 'The user has the role of a Shop Manager.', WOOPROGEN_PLUGIN_DOMAIN ) . "\r\n";
+
+				@wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Product Generator User', WOOPROGEN_PLUGIN_DOMAIN ), $blogname ), $message);
 			}
 		}
 		return $user_id;
 	} 
 
+	/**
+	 * Produce a title.
+	 * 
+	 * @param int $n_words
+	 * @return string
+	 */
 	public static function get_title( $n_words = 3 ) {
 		$titles = trim( stripslashes( get_option( 'woocommerce-product-generator-titles', self::DEFAULT_TITLES ) ) );
 		$titles = explode( "\n", $titles );
@@ -817,7 +837,13 @@ Vehicles';
 		$title = implode( ' ', $title );
 		return $title;
 	}
-	
+
+	/**
+	 * Produce content.
+	 * 
+	 * @param int $n_lines
+	 * @return string
+	 */
 	public static function get_content( $n_lines = 10 ) {
 		$contents = trim( stripslashes( get_option( 'woocommerce-product-generator-contents', self::DEFAULT_CONTENTS ) ) );
 		$contents = explode( "\n", $contents );
@@ -830,7 +856,12 @@ Vehicles';
 		$content = "<p>" . implode( "</p><p>", $content ) . "</p>";
 		return $content;
 	}
-	
+
+	/**
+	 * Produce an image.
+	 * 
+	 * @return string image data
+	 */
 	public static function get_image() {
 		$width = self::IMAGE_WIDTH;
 		$height = self::IMAGE_HEIGHT;
@@ -853,35 +884,20 @@ Vehicles';
 				$y + $h / 2,
 				$color
 			);
-		/*
-			imagettftext(
-				$image,
-				$h,
-				0,
-				$x,
-				$y,
-				$white,
-				'arial.ttf',
-				'Foo'
-			);
-		*/
 		}
-		//header('Content-type: image/png');
+
 		ob_start();
 		imagepng( $image );
 		$output = ob_get_clean();
-
-// 		$t = time();
-// 		$r = rand();
-
-// 		imagepng( $image, "./product-$t-$r.png" );
-
 		imagedestroy( $image );
-
 		return $output;
 
 	}
 
+	/**
+	 * Produce a name for an image.
+	 * @return string
+	 */
 	public static function get_image_name() {
 		$t = time();
 		$r = rand();
