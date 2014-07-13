@@ -733,6 +733,9 @@ Vehicles';
 		) );
 		if ( !( $post_id instanceof WP_Error ) ) {
 
+			// visibility
+			update_post_meta( $post_id, '_visibility', 'visible' );
+
 			// price
 			$price = wc_format_decimal( floatval( rand( 1, 10000 ) ) / 100.0 );
 			update_post_meta( $post_id, '_price', $price );
