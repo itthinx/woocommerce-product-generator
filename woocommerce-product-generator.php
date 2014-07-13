@@ -38,11 +38,12 @@ define( 'WOOPROGEN_PLUGIN_URL', WP_PLUGIN_URL . '/woocommerce-product-generator'
 class WooCommerce_Product_Generator {
 
 	const MAX_PER_RUN = 100;
+	const DEFAULT_PER_RUN = 10;
 
 	const IMAGE_WIDTH = 512;
 	const IMAGE_HEIGHT = 512;
 
-	const DEFAULT_LIMIT = 10;
+	const DEFAULT_LIMIT = 10000;
 
 	const DEFAULT_TITLES =
 '
@@ -603,7 +604,9 @@ Vehicles';
 			isset( $_REQUEST['product_generator'] ) && 
 			wp_verify_nonce( $_REQUEST['product_generator'], 'product-generator-js' )
 		) {
-			// @todo run generator
+			// run generator
+			$per_run = get_option( 'woocommerce-product-generator-per-run', self::DEFAULT_PER_RUN );
+			self::run( $per_run );
 			$n_products = self::get_product_count();
 			$result = array( 'total' => $n_products );
 			echo json_encode( $result );
@@ -620,20 +623,30 @@ Vehicles';
 			wp_enqueue_script( 'product-generator' );
 
 			if ( isset( $_POST['action'] ) && ( $_POST['action'] == 'save' ) && wp_verify_nonce( $_POST['product-generator'], 'admin' ) ) {
-				$limit  = !empty( $_POST['titles'] ) ? intval( trim( $_POST['titles'] ) ) : self::DEFAULT_LIMIT;
-				$titles = !empty( $_POST['titles'] ) ? $_POST['titles'] : '';
+				$limit    = !empty( $_POST['limit'] ) ? intval( trim( $_POST['limit'] ) ) : self::DEFAULT_LIMIT;
+				$per_run  = !empty( $_POST['per_run'] ) ? intval( trim( $_POST['per_run'] ) ) : self::DEFAULT_PER_RUN;
+				$titles   = !empty( $_POST['titles'] ) ? $_POST['titles'] : '';
 				$contents = !empty( $_POST['contents'] ) ? $_POST['contents'] : '';
 
 				if ( $limit < 0 ) {
 					$limit = self::DEFAULT_LIMIT;
 				}
-				delete_opption( 'woocommerce-product-generator-limit' );
+				delete_option( 'woocommerce-product-generator-limit' );
 				add_option( 'woocommerce-product-generator-limit', $limit, null, 'no' );
 
-				delete_opption( 'woocommerce-product-generator-titles' );
+				if ( $per_run < 0 ) {
+					$per_run = self::DEFAULT_PER_RUN;
+				}
+				if ( $per_run > self::MAX_PER_RUN ) {
+					$per_run = self::MAX_PER_RUN;
+				}
+				delete_option( 'woocommerce-product-generator-per-run' );
+				add_option( 'woocommerce-product-generator-per-run', $per_run, null, 'no' );
+
+				delete_option( 'woocommerce-product-generator-titles' );
 				add_option( 'woocommerce-product-generator-title', $titles, null, 'no' );
 
-				delete_opption( 'woocommerce-product-generator-contents' );
+				delete_option( 'woocommerce-product-generator-contents' );
 				add_option( 'woocommerce-product-generator-contents', $contents, null, 'no' );
 			} else if ( isset( $_POST['action'] ) && ( $_POST['action'] == 'generate' ) && wp_verify_nonce( $_POST['product-generate'], 'admin' ) ) {
 				$max = isset( $_POST['max'] ) ? intval( $_POST['max'] ) : 0;
@@ -644,8 +657,9 @@ Vehicles';
 				}
 			}
 
-			$limit = get_option( 'woocommerce-product-generator-limit', self::DEFAULT_LIMIT );
-			$titles = stripslashes( get_option( 'woocommerce-product-generator-titles', self::DEFAULT_TITLES ) );
+			$limit    = get_option( 'woocommerce-product-generator-limit', self::DEFAULT_LIMIT );
+			$per_run  = get_option( 'woocommerce-product-generator-per-run', self::DEFAULT_PER_RUN );
+			$titles   = stripslashes( get_option( 'woocommerce-product-generator-titles', self::DEFAULT_TITLES ) );
 			$contents = stripslashes( get_option( 'woocommerce-product-generator-contents', self::DEFAULT_CONTENTS ) );
 
 			$titles = explode( "\n", $titles );
@@ -671,10 +685,26 @@ Vehicles';
 			echo '<div>';
 
 			echo '<p>';
+			echo __( 'The continuous generator runs at most once per second, creating up to the indicated number of products per run.', WOOPROGEN_PLUGIN_DOMAIN );
+			echo ' ';
+			echo __( 'The continuous generator will try to create new products until stopped, or the total number of products reaches the indicated limit.', WOOPROGEN_PLUGIN_DOMAIN );
+			echo '</p>';
+
+			echo '<p>';
 			echo '<label>';
 			echo __( 'Limit', WOOPROGEN_PLUGIN_DOMAIN );
 			echo ' ';
 			echo sprintf( '<input type="text" name="limit" value="%d" />', $limit );
+			echo '</label>';
+			echo '</p>';
+
+			echo '<p>';
+			echo '<label>';
+			echo __( 'Per Run', WOOPROGEN_PLUGIN_DOMAIN );
+			echo ' ';
+			echo sprintf( '<input type="text" name="per_run" value="%d" />', $per_run );
+			echo ' ';
+			echo sprintf( __( 'Maximum %d', WOOPROGEN_PLUGIN_DOMAIN ), self::MAX_PER_RUN );
 			echo '</label>';
 			echo '</p>';
 
@@ -778,17 +808,13 @@ Vehicles';
 	}
 
 	/**
-	 * 
-	 * @param unknown_type $n
+	 * Product generation cycle.
 	 */
-	public static function run( $n ) {
-		
-		$_n = $n;
+	public static function run( $n = self::MAX_PER_RUN ) {
 		$limit = intval( get_option( 'woocommerce-product-generator-limit', self::DEFAULT_LIMIT ) );
-
 		$n_products = self::get_product_count();
-		if ( $limit < $n_products ) {
-			$n = max( $n, $n_products - $limit );
+		if ( $n_products < $limit ) {
+			$n = min( $n, $limit - $n_products );
 			$n = min( $n, self::MAX_PER_RUN );
 			if ( $n > 0 ) {
 				for ( $i = 0; $i < $n; $i++ ) {
@@ -807,10 +833,6 @@ Vehicles';
 		//$counts = wp_count_posts( 'product' ); // <-- nah ... :|
 		global $wpdb;
 		return intval( $wpdb->get_var( "SELECT count(*) FROM wp_posts WHERE post_type = 'product' and post_status = 'publish'" ) );
-	}
-
-	public static function stop() {
-		
 	}
 
 	public static function create_product() {
