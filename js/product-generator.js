@@ -94,7 +94,9 @@ ixprogen.stop = function() {
 	if ( ixprogen.running ) {
 		ixprogen.running = false;
 		clearTimeout( ixprogen.timeout );
-		var $status = jQuery( "#product-generator-status" );
+		var $status = jQuery( "#product-generator-status" ),
+			$blinker = jQuery( "#product-generator-blinker" );
 		$status.html( '<p>Stopped</p>' );
+		$blinker.removeClass( 'blinker' );
 	}
 };
