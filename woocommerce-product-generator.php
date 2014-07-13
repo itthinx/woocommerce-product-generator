@@ -139,6 +139,22 @@ Kit
 Gold
 Silver
 Brass
+Red
+Green
+Blue
+Yellow
+Black
+White
+Pink
+Violet
+Purple
+Lime
+Lavender
+Brown
+Grey
+Small
+Medium
+Large
 ';
 
 	const DEFAULT_CONTENTS = '
