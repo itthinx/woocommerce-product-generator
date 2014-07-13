@@ -592,6 +592,7 @@ Vehicles';
 	
 	public static function load() {
 		wp_register_script( 'product-generator', WOOPROGEN_PLUGIN_URL . '/js/product-generator.js', array( 'jquery' ), WOOPROGEN_PLUGIN_VERSION, true );
+		wp_register_style( 'product-generator', WOOPROGEN_PLUGIN_URL . '/css/product-generator.css', array(), WOOPROGEN_PLUGIN_VERSION );
 	}
 
 	/**
@@ -637,6 +638,7 @@ Vehicles';
 		if ( self::woocommerce_is_active() ) {
 
 			wp_enqueue_script( 'product-generator' );
+			wp_enqueue_style( 'product-generator' );
 
 			if ( isset( $_POST['action'] ) && ( $_POST['action'] == 'save' ) && wp_verify_nonce( $_POST['product-generator'], 'admin' ) ) {
 				$limit    = !empty( $_POST['limit'] ) ? intval( trim( $_POST['limit'] ) ) : self::DEFAULT_LIMIT;
@@ -827,15 +829,16 @@ Vehicles';
 			echo sprintf( '<input class="button" type="button" id="product-generator-stop" name="product-generator-stop" value="%s" />', __( 'Stop', WOOPROGEN_PLUGIN_DOMAIN ) );
 			echo '</div>';
 
-			echo '<div id="product-generator-blinker"></div>';
 			echo '<div id="product-generator-status"></div>';
 			echo '<div id="product-generator-update"></div>';
+			echo '<div id="product-generator-blinker"></div>';
 
 			$js_nonce = wp_create_nonce( 'product-generator-js' );
 
 			echo '<script type="text/javascript">';
 			echo 'if ( typeof jQuery !== "undefined" ) {';
 			echo 'jQuery(document).ready(function(){';
+			echo sprintf( 'ixprogen.limit = %d;', $limit );
 			echo 'jQuery("#product-generator-run").click(function(e){';
 			echo 'e.stopPropagation();';
 			echo sprintf(

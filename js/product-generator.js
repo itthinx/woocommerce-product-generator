@@ -21,7 +21,8 @@
 var ixprogen = {
 	running : false,
 	generating : false,
-	timeout : null
+	timeout : null,
+	limit : null
 };
 
 /**
@@ -35,8 +36,7 @@ ixprogen.generate = function() {
 
 	var $status = jQuery( "#product-generator-status" ),
 		$update = jQuery( "#product-generator-update" ),
-		$blinker = jQuery( "#product-generator-blinker" ),
-		$limit = jQuery( "#product-generator-limit" );
+		$blinker = jQuery( "#product-generator-blinker" );
 
 	$blinker.addClass( 'blinker' );
 	$status.html('<p>Generating</p>' );
@@ -48,18 +48,21 @@ ixprogen.generate = function() {
 				data : { "action" : "product_generator", "nonce" : ixprogen.nonce },
 				complete : function() {
 					ixprogen.generating = false;
+					$blinker.removeClass('blinker');
 				},
 				success : function ( data ) {
 					if ( typeof data.total !== "undefined" ) {
 						$update.html( '<p>Total Products: ' + data.total + '</p>' );
+						if ( ixprogen.limit !== null ) {
+							if ( data.total >= ixprogen.limit ) {
+								ixprogen.stop();
+							}
+						}
 					}
-					$blinker.removeClass('blinker');
 				},
 				dataType : "json"
 		});
 	}
-	$blinker.removeClass( 'blinker' );
-
 };
 
 ixprogen.start = function( url, nonce ) {
