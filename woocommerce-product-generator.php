@@ -671,6 +671,18 @@ Vehicles';
 						self::create_product();
 					}
 				}
+			} else if ( isset( $_POST['action'] ) && ( $_POST['action'] == 'reset' ) && wp_verify_nonce( $_POST['product-generator-reset'], 'admin' ) ) {
+				delete_option( 'woocommerce-product-generator-limit' );
+				add_option( 'woocommerce-product-generator-limit', self::DEFAULT_LIMIT, null, 'no' );
+
+				delete_option( 'woocommerce-product-generator-per-run' );
+				add_option( 'woocommerce-product-generator-per-run', self::DEFAULT_PER_RUN, null, 'no' );
+
+				delete_option( 'woocommerce-product-generator-titles' );
+				add_option( 'woocommerce-product-generator-title', self::DEFAULT_TITLES, null, 'no' );
+
+				delete_option( 'woocommerce-product-generator-contents' );
+				add_option( 'woocommerce-product-generator-contents', self::DEFAULT_CONTENTS, null, 'no' );
 			}
 
 			$limit    = get_option( 'woocommerce-product-generator-limit', self::DEFAULT_LIMIT );
@@ -749,6 +761,29 @@ Vehicles';
 			echo '<div class="buttons">';
 			echo sprintf( '<input class="button button-primary" type="submit" name="submit" value="%s" />', __( 'Save', WOOPROGEN_PLUGIN_DOMAIN ) );
 			echo '<input type="hidden" name="action" value="save" />';
+			echo '</div>';
+
+			echo '</div>';
+			echo '</form>';
+			echo '</div>';
+
+			echo '<h2>';
+			echo __( 'Reset', WOOPROGEN_PLUGIN_DOMAIN );
+			echo '</h2>';
+
+			echo '<div class="reset">';
+			echo '<form name="reset" method="post" action="">';
+			echo '<div>';
+
+			echo '<p>';
+			echo __( 'Reset to defaults', WOOPROGEN_PLUGIN_DOMAIN );
+			echo '</p>';
+
+			wp_nonce_field( 'admin', 'product-generator-reset', true, true );
+
+			echo '<div class="buttons">';
+			echo sprintf( '<input class="button button-primary" type="submit" name="submit" value="%s" />', __( 'Reset', WOOPROGEN_PLUGIN_DOMAIN ) );
+			echo '<input type="hidden" name="action" value="reset" />';
 			echo '</div>';
 
 			echo '</div>';
