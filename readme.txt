@@ -35,6 +35,8 @@ You can install the plugin via FTP, see [Manual Plugin Installation](http://code
 1. WooCommerce menu integration.
 2. Generator settings.
 3. Generator actions, single and continuous product generation runs.
+4. Continuous generator running.
+5. Some sample products generated.
 
 == Changelog ==
 
