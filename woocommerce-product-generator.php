@@ -890,7 +890,9 @@ Vehicles';
 	public static function get_product_count() {
 		//$counts = wp_count_posts( 'product' ); // <-- nah ... :|
 		global $wpdb;
-		return intval( $wpdb->get_var( "SELECT count(*) FROM wp_posts WHERE post_type = 'product' and post_status = 'publish'" ) );
+		return intval( $wpdb->get_var(
+			"SELECT count(*) FROM $wpdb->posts WHERE post_type = 'product' and post_status = 'publish'"
+		) );
 	}
 
 	public static function create_product() {
@@ -1055,33 +1057,41 @@ Vehicles';
 	 * @return string image data
 	 */
 	public static function get_image() {
-		$width = self::IMAGE_WIDTH;
-		$height = self::IMAGE_HEIGHT;
+		$output = '';
+		if ( function_exists( 'imagepng' ) ) {
+			$width = self::IMAGE_WIDTH;
+			$height = self::IMAGE_HEIGHT;
 
-		$image = imagecreatetruecolor( $width, $height );
-		for( $i = 0; $i <= 11; $i++ ) {
-			$x = rand( 0, $width );
-			$y = rand( 0, $height );
-			$w = rand( 1, $width );
-			$h = rand( 1, $height );
-			$red = rand( 0, 255 );
-			$green = rand( 0, 255 );
-			$blue  = rand( 0, 255 );
-			$color = imagecolorallocate( $image, $red, $green, $blue );
-			imagefilledrectangle(
-				$image,
-				$x - $w / 2,
-				$y - $h / 2,
-				$x + $w / 2,
-				$y + $h / 2,
-				$color
-			);
+			$image = imagecreatetruecolor( $width, $height );
+			for( $i = 0; $i <= 11; $i++ ) {
+				$x = rand( 0, $width );
+				$y = rand( 0, $height );
+				$w = rand( 1, $width );
+				$h = rand( 1, $height );
+				$red = rand( 0, 255 );
+				$green = rand( 0, 255 );
+				$blue  = rand( 0, 255 );
+				$color = imagecolorallocate( $image, $red, $green, $blue );
+				imagefilledrectangle(
+					$image,
+					$x - $w / 2,
+					$y - $h / 2,
+					$x + $w / 2,
+					$y + $h / 2,
+					$color
+				);
+			}
+
+			ob_start();
+			imagepng( $image );
+			$output = ob_get_clean();
+			imagedestroy( $image );
+		} else {
+			$image = file_get_contents( WOOPROGEN_PLUGIN_URL . '/images/placeholder.png' );
+			ob_start();
+			echo $image;
+			$output = ob_get_clean();
 		}
-
-		ob_start();
-		imagepng( $image );
-		$output = ob_get_clean();
-		imagedestroy( $image );
 		return $output;
 
 	}
