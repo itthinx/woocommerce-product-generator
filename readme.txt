@@ -41,7 +41,7 @@ You can install the plugin via FTP, see [Manual Plugin Installation](http://code
 == Changelog ==
 
 = 1.0.3 =
-* Tested with WordPress 4.3.
+* Tested with WordPress 4.4.
 * Tested with WooCommerce 2.4.10.
 * Fixed missing product meta _regular_price.
 
