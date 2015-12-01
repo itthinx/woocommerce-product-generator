@@ -21,14 +21,14 @@
  * Plugin Name: WooCommerce Product Generator
  * Plugin URI: http://www.itthinx.com/
  * Description: A sample product generator for WooCommerce.
- * Version: 1.0.2
+ * Version: 1.0.3
  * Author: itthinx
  * Author URI: http://www.itthinx.com
  * Donate-Link: http://www.itthinx.com
  * License: GPLv3
  */
 
-define( 'WOOPROGEN_PLUGIN_VERSION', '1.0.2' );
+define( 'WOOPROGEN_PLUGIN_VERSION', '1.0.3' );
 define( 'WOOPROGEN_PLUGIN_DOMAIN', 'woocommerce-product-generator' );
 define( 'WOOPROGEN_PLUGIN_URL', WP_PLUGIN_URL . '/woocommerce-product-generator' );
 
@@ -925,6 +925,7 @@ Vehicles';
 			// price
 			$price = wc_format_decimal( floatval( rand( 1, 10000 ) ) / 100.0 );
 			update_post_meta( $post_id, '_price', $price );
+			update_post_meta( $post_id, '_regular_price', $price );
 
 			// add categories
 			$terms = array();
