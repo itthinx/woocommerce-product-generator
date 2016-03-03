@@ -21,14 +21,14 @@
  * Plugin Name: WooCommerce Product Generator
  * Plugin URI: http://www.itthinx.com/
  * Description: A sample product generator for WooCommerce.
- * Version: 1.1.0
+ * Version: 1.1.1
  * Author: itthinx
  * Author URI: http://www.itthinx.com
  * Donate-Link: http://www.itthinx.com
  * License: GPLv3
  */
 
-define( 'WOOPROGEN_PLUGIN_VERSION', '1.1.0' );
+define( 'WOOPROGEN_PLUGIN_VERSION', '1.1.1' );
 define( 'WOOPROGEN_PLUGIN_DOMAIN', 'woocommerce-product-generator' );
 define( 'WOOPROGEN_PLUGIN_URL', WP_PLUGIN_URL . '/woocommerce-product-generator' );
 
@@ -1044,13 +1044,19 @@ Vehicles';
 	public static function get_excerpt( $n_lines = 3, $contents = null ) {
 		if ( $contents === null ) {
 			$contents = trim( stripslashes( get_option( 'woocommerce-product-generator-contents', self::DEFAULT_CONTENTS ) ) );
+		} else {
+			$contents = str_ireplace( '</p>', "\n", $contents );
+			$contents = str_ireplace( '<p>', '', $contents );
 		}
 		$contents = explode( "\n", $contents );
 		$content = array();
 		$n = count( $contents );
 		$n_lines = rand( 1, $n_lines );
 		for ( $i = 1; $i <= $n_lines ; $i++ ) {
-			$content[] = $contents[rand( 0, $n - 1 )];
+			$maybe_content = $contents[rand( 0, $n - 1 )];
+			if ( !in_array( $maybe_content, $content ) ) {
+				$content[] = $maybe_content;
+			}
 		}
 		$content = "<p>" . implode( "</p><p>", $content ) . "</p>";
 		return $content;
