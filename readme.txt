@@ -3,8 +3,8 @@ Contributors: itthinx
 Donate link: http://www.itthinx.com/plugins/woocommerce-product-generator/
 Tags: automatic, benchmark, example, generator, performance, product, products, sample, test, tester, testing, test-tool, woocommerce
 Requires at least: 4.0
-Tested up to: 4.4
-Stable tag: 1.0.3
+Tested up to: 4.4.2
+Stable tag: 1.1.0
 License: GPLv3
 
 A sample product generator for WooCommerce.
@@ -40,6 +40,9 @@ You can install the plugin via FTP, see [Manual Plugin Installation](http://code
 
 == Changelog ==
 
+= 1.1.0 =
+* Creating excerpts, too.
+
 = 1.0.3 =
 * Tested with WordPress 4.4.
 * Tested with WooCommerce 2.4.10.
@@ -60,5 +63,5 @@ You can install the plugin via FTP, see [Manual Plugin Installation](http://code
 
 == Upgrade Notice ==
 
-= 1.0.2 =
-* Tested with WordPress 4.3, added two fixes.
+= 1.1.0 =
+* With this release, product short descriptions or excerpts are also created.
