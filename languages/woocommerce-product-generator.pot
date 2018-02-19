@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: WooCommerce Product Generator 1.2.0\n"
 "Report-Msgid-Bugs-To: "
 "https://github.com/itthinx/woocommerce-product-generator/issues\n"
-"POT-Creation-Date: 2018-02-19 20:32:10+00:00\n"
+"POT-Creation-Date: 2018-02-19 21:05:05+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -14,8 +14,8 @@ msgstr ""
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "X-Generator: grunt-wp-i18n1.0.1\n"
 
-#: views/admin-generator.php:12 woocommerce-product-generator.php:84
-#: woocommerce-product-generator.php:85 woocommerce-product-generator.php:118
+#: views/admin-generator.php:12 woocommerce-product-generator.php:85
+#: woocommerce-product-generator.php:86 woocommerce-product-generator.php:119
 msgid "Product Generator"
 msgstr ""
 
@@ -73,7 +73,7 @@ msgstr ""
 msgid "Save"
 msgstr ""
 
-#: views/admin-generator.php:71
+#: views/admin-generator.php:71 views/admin-generator.php:83
 msgid "Reset"
 msgstr ""
 
@@ -89,47 +89,55 @@ msgstr ""
 msgid "Generate up to &hellip;"
 msgstr ""
 
+#: views/admin-generator.php:105 views/admin-generator.php:116
+msgid "Run"
+msgstr ""
+
 #: views/admin-generator.php:113
 msgid "Continuous AJAX Run"
 msgstr ""
 
-#: woocommerce-product-generator.php:98
-msgid "Generating"
+#: views/admin-generator.php:117
+msgid "Stop"
 msgstr ""
 
 #: woocommerce-product-generator.php:99
-msgid "Total Products: %d"
+msgid "Generating"
 msgstr ""
 
 #: woocommerce-product-generator.php:100
-msgid "Running"
+msgid "Total Products: %d"
 msgstr ""
 
 #: woocommerce-product-generator.php:101
+msgid "Running"
+msgstr ""
+
+#: woocommerce-product-generator.php:102
 msgid "Stopped"
 msgstr ""
 
-#: woocommerce-product-generator.php:147
+#: woocommerce-product-generator.php:145
 msgid "Access denied."
 msgstr ""
 
-#: woocommerce-product-generator.php:371
+#: woocommerce-product-generator.php:369
 msgid "Product generator user created on %s:"
 msgstr ""
 
-#: woocommerce-product-generator.php:372
+#: woocommerce-product-generator.php:370
 msgid "Username: %s"
 msgstr ""
 
-#: woocommerce-product-generator.php:373
+#: woocommerce-product-generator.php:371
 msgid "Password: %s"
 msgstr ""
 
-#: woocommerce-product-generator.php:374
+#: woocommerce-product-generator.php:372
 msgid "The user has the role of a Shop Manager."
 msgstr ""
 
-#: woocommerce-product-generator.php:376
+#: woocommerce-product-generator.php:374
 msgid "[%s] Product Generator User"
 msgstr ""
 
