@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: WooCommerce Product Generator 1.2.0\n"
 "Report-Msgid-Bugs-To: "
 "https://github.com/itthinx/woocommerce-product-generator/issues\n"
-"POT-Creation-Date: 2018-02-19 21:05:05+00:00\n"
+"POT-Creation-Date: 2018-02-19 21:15:29+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -14,8 +14,8 @@ msgstr ""
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "X-Generator: grunt-wp-i18n1.0.1\n"
 
-#: views/admin-generator.php:12 woocommerce-product-generator.php:85
-#: woocommerce-product-generator.php:86 woocommerce-product-generator.php:119
+#: views/admin-generator.php:12 woocommerce-product-generator.php:110
+#: woocommerce-product-generator.php:111 woocommerce-product-generator.php:144
 msgid "Product Generator"
 msgstr ""
 
@@ -101,43 +101,49 @@ msgstr ""
 msgid "Stop"
 msgstr ""
 
-#: woocommerce-product-generator.php:99
+#: woocommerce-product-generator.php:96
+msgid ""
+"WooCommerce Product Generator requires at least WooCommerce %s in order to "
+"function. Please upgrade WooCommerce."
+msgstr ""
+
+#: woocommerce-product-generator.php:124
 msgid "Generating"
 msgstr ""
 
-#: woocommerce-product-generator.php:100
+#: woocommerce-product-generator.php:125
 msgid "Total Products: %d"
 msgstr ""
 
-#: woocommerce-product-generator.php:101
+#: woocommerce-product-generator.php:126
 msgid "Running"
 msgstr ""
 
-#: woocommerce-product-generator.php:102
+#: woocommerce-product-generator.php:127
 msgid "Stopped"
 msgstr ""
 
-#: woocommerce-product-generator.php:145
+#: woocommerce-product-generator.php:170
 msgid "Access denied."
 msgstr ""
 
-#: woocommerce-product-generator.php:369
+#: woocommerce-product-generator.php:394
 msgid "Product generator user created on %s:"
 msgstr ""
 
-#: woocommerce-product-generator.php:370
+#: woocommerce-product-generator.php:395
 msgid "Username: %s"
 msgstr ""
 
-#: woocommerce-product-generator.php:371
+#: woocommerce-product-generator.php:396
 msgid "Password: %s"
 msgstr ""
 
-#: woocommerce-product-generator.php:372
+#: woocommerce-product-generator.php:397
 msgid "The user has the role of a Shop Manager."
 msgstr ""
 
-#: woocommerce-product-generator.php:374
+#: woocommerce-product-generator.php:399
 msgid "[%s] Product Generator User"
 msgstr ""
 
