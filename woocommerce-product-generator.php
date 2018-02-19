@@ -577,17 +577,15 @@ Vehicles';
 	 * Add the Generator menu item.
 	 */
 	public static function admin_menu() {
-		if ( self::woocommerce_is_active() ) {
-			$page = add_submenu_page(
-				'woocommerce',
-				'Product Generator',
-				'Product Generator',
-				'manage_woocommerce',
-				'product-generator',
-				array( __CLASS__, 'generator' )
-			);
-			add_action( 'load-' . $page, array( __CLASS__, 'load' ) );
-		}
+		$page = add_submenu_page(
+			'woocommerce',
+			'Product Generator',
+			'Product Generator',
+			'manage_woocommerce',
+			'product-generator',
+			array( __CLASS__, 'generator' )
+		);
+		add_action( 'load-' . $page, array( __CLASS__, 'load' ) );
 	}
 	
 	public static function load() {
@@ -602,9 +600,7 @@ Vehicles';
 	 * @param array $links with additional links
 	 */
 	public static function admin_settings_link( $links ) {
-		if ( self::woocommerce_is_active() ) {
-			$links[] = '<a href="' . get_admin_url( null, 'admin.php?page=product-generator' ) . '">' . __( 'Product Generator', WOOPROGEN_PLUGIN_DOMAIN ) . '</a>';
-		}
+		$links[] = '<a href="' . get_admin_url( null, 'admin.php?page=product-generator' ) . '">' . __( 'Product Generator', WOOPROGEN_PLUGIN_DOMAIN ) . '</a>';
 		return $links;
 	}
 
@@ -635,234 +631,232 @@ Vehicles';
 		if ( !current_user_can( 'manage_woocommerce' ) ) {
 			wp_die( __( 'Access denied.', WOOPROGEN_PLUGIN_DOMAIN ) );
 		}
-		if ( self::woocommerce_is_active() ) {
 
-			wp_enqueue_script( 'product-generator' );
-			wp_enqueue_style( 'product-generator' );
+		wp_enqueue_script( 'product-generator' );
+		wp_enqueue_style( 'product-generator' );
 
-			if ( isset( $_POST['action'] ) && ( $_POST['action'] == 'save' ) && wp_verify_nonce( $_POST['product-generator'], 'admin' ) ) {
-				$limit    = !empty( $_POST['limit'] ) ? intval( trim( $_POST['limit'] ) ) : self::DEFAULT_LIMIT;
-				$per_run  = !empty( $_POST['per_run'] ) ? intval( trim( $_POST['per_run'] ) ) : self::DEFAULT_PER_RUN;
-				$titles   = !empty( $_POST['titles'] ) ? $_POST['titles'] : '';
-				$contents = !empty( $_POST['contents'] ) ? $_POST['contents'] : '';
+		if ( isset( $_POST['action'] ) && ( $_POST['action'] == 'save' ) && wp_verify_nonce( $_POST['product-generator'], 'admin' ) ) {
+			$limit    = !empty( $_POST['limit'] ) ? intval( trim( $_POST['limit'] ) ) : self::DEFAULT_LIMIT;
+			$per_run  = !empty( $_POST['per_run'] ) ? intval( trim( $_POST['per_run'] ) ) : self::DEFAULT_PER_RUN;
+			$titles   = !empty( $_POST['titles'] ) ? $_POST['titles'] : '';
+			$contents = !empty( $_POST['contents'] ) ? $_POST['contents'] : '';
 
-				if ( $limit < 0 ) {
-					$limit = self::DEFAULT_LIMIT;
-				}
-				delete_option( 'woocommerce-product-generator-limit' );
-				add_option( 'woocommerce-product-generator-limit', $limit, null, 'no' );
-
-				if ( $per_run < 0 ) {
-					$per_run = self::DEFAULT_PER_RUN;
-				}
-				if ( $per_run > self::MAX_PER_RUN ) {
-					$per_run = self::MAX_PER_RUN;
-				}
-				delete_option( 'woocommerce-product-generator-per-run' );
-				add_option( 'woocommerce-product-generator-per-run', $per_run, null, 'no' );
-
-				delete_option( 'woocommerce-product-generator-titles' );
-				add_option( 'woocommerce-product-generator-title', $titles, null, 'no' );
-
-				delete_option( 'woocommerce-product-generator-contents' );
-				add_option( 'woocommerce-product-generator-contents', $contents, null, 'no' );
-			} else if ( isset( $_POST['action'] ) && ( $_POST['action'] == 'generate' ) && wp_verify_nonce( $_POST['product-generate'], 'admin' ) ) {
-				$max = isset( $_POST['max'] ) ? intval( $_POST['max'] ) : 0;
-				if ( $max > 0 ) {
-					for ( $i = 1; $i <= $max ; $i++ ) {
-						self::create_product();
-					}
-				}
-			} else if ( isset( $_POST['action'] ) && ( $_POST['action'] == 'reset' ) && wp_verify_nonce( $_POST['product-generator-reset'], 'admin' ) ) {
-				delete_option( 'woocommerce-product-generator-limit' );
-				add_option( 'woocommerce-product-generator-limit', self::DEFAULT_LIMIT, null, 'no' );
-
-				delete_option( 'woocommerce-product-generator-per-run' );
-				add_option( 'woocommerce-product-generator-per-run', self::DEFAULT_PER_RUN, null, 'no' );
-
-				delete_option( 'woocommerce-product-generator-titles' );
-				add_option( 'woocommerce-product-generator-title', self::DEFAULT_TITLES, null, 'no' );
-
-				delete_option( 'woocommerce-product-generator-contents' );
-				add_option( 'woocommerce-product-generator-contents', self::DEFAULT_CONTENTS, null, 'no' );
+			if ( $limit < 0 ) {
+				$limit = self::DEFAULT_LIMIT;
 			}
+			delete_option( 'woocommerce-product-generator-limit' );
+			add_option( 'woocommerce-product-generator-limit', $limit, null, 'no' );
 
-			$limit    = get_option( 'woocommerce-product-generator-limit', self::DEFAULT_LIMIT );
-			$per_run  = get_option( 'woocommerce-product-generator-per-run', self::DEFAULT_PER_RUN );
-			$titles   = stripslashes( get_option( 'woocommerce-product-generator-titles', self::DEFAULT_TITLES ) );
-			$contents = stripslashes( get_option( 'woocommerce-product-generator-contents', self::DEFAULT_CONTENTS ) );
+			if ( $per_run < 0 ) {
+				$per_run = self::DEFAULT_PER_RUN;
+			}
+			if ( $per_run > self::MAX_PER_RUN ) {
+				$per_run = self::MAX_PER_RUN;
+			}
+			delete_option( 'woocommerce-product-generator-per-run' );
+			add_option( 'woocommerce-product-generator-per-run', $per_run, null, 'no' );
 
-			$titles = explode( "\n", $titles );
-			sort( $titles );
-			$titles = trim( implode( "\n", $titles ) );
+			delete_option( 'woocommerce-product-generator-titles' );
+			add_option( 'woocommerce-product-generator-title', $titles, null, 'no' );
 
-			echo '<h1>';
-			echo __( 'Product Generator', WOOPROGEN_PLUGIN_DOMAIN );
-			echo '</h1>';
+			delete_option( 'woocommerce-product-generator-contents' );
+			add_option( 'woocommerce-product-generator-contents', $contents, null, 'no' );
+		} else if ( isset( $_POST['action'] ) && ( $_POST['action'] == 'generate' ) && wp_verify_nonce( $_POST['product-generate'], 'admin' ) ) {
+			$max = isset( $_POST['max'] ) ? intval( $_POST['max'] ) : 0;
+			if ( $max > 0 ) {
+				for ( $i = 1; $i <= $max ; $i++ ) {
+					self::create_product();
+				}
+			}
+		} else if ( isset( $_POST['action'] ) && ( $_POST['action'] == 'reset' ) && wp_verify_nonce( $_POST['product-generator-reset'], 'admin' ) ) {
+			delete_option( 'woocommerce-product-generator-limit' );
+			add_option( 'woocommerce-product-generator-limit', self::DEFAULT_LIMIT, null, 'no' );
 
-			echo '<div class="product-generator-admin" style="margin-right:1em;">';
+			delete_option( 'woocommerce-product-generator-per-run' );
+			add_option( 'woocommerce-product-generator-per-run', self::DEFAULT_PER_RUN, null, 'no' );
 
-			echo '<div>';
-			echo __( 'This produces demo products for testing purposes.', WOOPROGEN_PLUGIN_DOMAIN );
-			echo ' ';
-			echo __( 'It is <strong>NOT</strong> recommended to use this on a production site.', WOOPROGEN_PLUGIN_DOMAIN );
-			echo ' ';
-			echo __( 'The plugin will <strong>NOT</strong> clean up the data it has created.', WOOPROGEN_PLUGIN_DOMAIN );
-			echo ' ';
-			echo __( 'The plugin will create a <em>product-generator</em> user in the role of a <em>Shop Manager</em>.', WOOPROGEN_PLUGIN_DOMAIN );
-			echo '</div>';
+			delete_option( 'woocommerce-product-generator-titles' );
+			add_option( 'woocommerce-product-generator-title', self::DEFAULT_TITLES, null, 'no' );
 
-			echo '<div class="settings">';
-			echo '<form name="settings" method="post" action="">';
-			echo '<div>';
-
-			echo '<p>';
-			echo __( 'The continuous generator runs at most once per second, creating up to the indicated number of products per run.', WOOPROGEN_PLUGIN_DOMAIN );
-			echo ' ';
-			echo __( 'The continuous generator will try to create new products until stopped, or the total number of products reaches the indicated limit.', WOOPROGEN_PLUGIN_DOMAIN );
-			echo '</p>';
-
-			echo '<p>';
-			echo '<label>';
-			echo __( 'Limit', WOOPROGEN_PLUGIN_DOMAIN );
-			echo ' ';
-			echo sprintf( '<input type="text" name="limit" value="%d" />', $limit );
-			echo '</label>';
-			echo '</p>';
-
-			echo '<p>';
-			echo '<label>';
-			echo __( 'Per Run', WOOPROGEN_PLUGIN_DOMAIN );
-			echo ' ';
-			echo sprintf( '<input type="text" name="per_run" value="%d" />', $per_run );
-			echo ' ';
-			echo sprintf( __( 'Maximum %d', WOOPROGEN_PLUGIN_DOMAIN ), self::MAX_PER_RUN );
-			echo '</label>';
-			echo '</p>';
-
-			echo '<p>';
-			echo '<label>';
-			echo __( 'Titles', WOOPROGEN_PLUGIN_DOMAIN );
-			echo '<br/>';
-			echo '<textarea name="titles" style="height:10em;width:90%;">';
-			echo htmlentities( $titles );
-			echo '</textarea>';
-			echo '</label>';
-			echo '</p>';
-
-			echo '<p>';
-			echo '<label>';
-			echo __( 'Contents', WOOPROGEN_PLUGIN_DOMAIN );
-			echo '<br/>';
-			echo '<textarea name="contents" style="height:20em;width:90%;">';
-			echo htmlentities( $contents );
-			echo '</textarea>';
-			echo '</label>';
-			echo '</p>';
-
-			wp_nonce_field( 'admin', 'product-generator', true, true );
-
-			echo '<div class="buttons">';
-			echo sprintf( '<input class="button button-primary" type="submit" name="submit" value="%s" />', __( 'Save', WOOPROGEN_PLUGIN_DOMAIN ) );
-			echo '<input type="hidden" name="action" value="save" />';
-			echo '</div>';
-
-			echo '</div>';
-			echo '</form>';
-			echo '</div>';
-
-			echo '<h2>';
-			echo __( 'Reset', WOOPROGEN_PLUGIN_DOMAIN );
-			echo '</h2>';
-
-			echo '<div class="reset">';
-			echo '<form name="reset" method="post" action="">';
-			echo '<div>';
-
-			echo '<p>';
-			echo __( 'Reset to defaults', WOOPROGEN_PLUGIN_DOMAIN );
-			echo '</p>';
-
-			wp_nonce_field( 'admin', 'product-generator-reset', true, true );
-
-			echo '<div class="buttons">';
-			echo sprintf( '<input class="button button-primary" type="submit" name="submit" value="%s" />', __( 'Reset', WOOPROGEN_PLUGIN_DOMAIN ) );
-			echo '<input type="hidden" name="action" value="reset" />';
-			echo '</div>';
-
-			echo '</div>';
-			echo '</form>';
-			echo '</div>';
-
-			echo '<h2>';
-			echo __( 'Single Run', WOOPROGEN_PLUGIN_DOMAIN );
-			echo '</h2>';
-
-			echo '<div class="generate">';
-			echo '<form name="generate" method="post" action="">';
-			echo '<div>';
-
-			echo '<p>';
-			echo '<label>';
-			echo __( 'Generate up to &hellip;', WOOPROGEN_PLUGIN_DOMAIN );
-			echo ' ';
-			echo '<input type="text" name="max" value="1" />';
-			echo '</label>';
-			echo '</p>';
-
-			wp_nonce_field( 'admin', 'product-generate', true, true );
-
-			echo '<div class="buttons">';
-			echo sprintf( '<input class="button button-primary" type="submit" name="submit" value="%s" />', __( 'Run', WOOPROGEN_PLUGIN_DOMAIN ) );
-			echo '<input type="hidden" name="action" value="generate" />';
-			echo '</div>';
-
-			echo '</div>';
-			echo '</form>';
-			echo '</div>';
-
-			echo '<h2>';
-			echo __( 'Continuous AJAX Run', WOOPROGEN_PLUGIN_DOMAIN );
-			echo '</h2>';
-
-			echo '<div class="buttons">';
-			echo sprintf( '<input class="button" type="button" id="product-generator-run" name="product-generator-run" value="%s" />', __( 'Run', WOOPROGEN_PLUGIN_DOMAIN ) );
-			echo ' ';
-			echo sprintf( '<input class="button" type="button" id="product-generator-stop" name="product-generator-stop" value="%s" />', __( 'Stop', WOOPROGEN_PLUGIN_DOMAIN ) );
-			echo '</div>';
-
-			echo '<div id="product-generator-status"></div>';
-			echo '<div id="product-generator-update"></div>';
-			echo '<div id="product-generator-blinker"></div>';
-
-			$js_nonce = wp_create_nonce( 'product-generator-js' );
-
-			echo '<script type="text/javascript">';
-			echo 'if ( typeof jQuery !== "undefined" ) {';
-			echo 'jQuery(document).ready(function(){';
-			echo sprintf( 'ixprogen.limit = %d;', $limit );
-			echo 'jQuery("#product-generator-run").click(function(e){';
-			echo 'e.stopPropagation();';
-			echo sprintf(
-				'ixprogen.start("%s");',
-				add_query_arg(
-					array(
-						'product_generator' => $js_nonce
-					),
-					admin_url( 'admin-ajax.php' )
-				)
-			);
-			echo '});'; // run click
-			echo 'jQuery("#product-generator-stop").click(function(e){';
-			echo 'e.stopPropagation();';
-			echo 'ixprogen.stop();';
-			echo '});'; // stop click
-			echo '});'; // ready
-			echo '}';
-			echo '</script>';
-
-			echo '</div>'; // .product-generator-admin
+			delete_option( 'woocommerce-product-generator-contents' );
+			add_option( 'woocommerce-product-generator-contents', self::DEFAULT_CONTENTS, null, 'no' );
 		}
+
+		$limit    = get_option( 'woocommerce-product-generator-limit', self::DEFAULT_LIMIT );
+		$per_run  = get_option( 'woocommerce-product-generator-per-run', self::DEFAULT_PER_RUN );
+		$titles   = stripslashes( get_option( 'woocommerce-product-generator-titles', self::DEFAULT_TITLES ) );
+		$contents = stripslashes( get_option( 'woocommerce-product-generator-contents', self::DEFAULT_CONTENTS ) );
+
+		$titles = explode( "\n", $titles );
+		sort( $titles );
+		$titles = trim( implode( "\n", $titles ) );
+
+		echo '<h1>';
+		echo __( 'Product Generator', WOOPROGEN_PLUGIN_DOMAIN );
+		echo '</h1>';
+
+		echo '<div class="product-generator-admin" style="margin-right:1em;">';
+
+		echo '<div>';
+		echo __( 'This produces demo products for testing purposes.', WOOPROGEN_PLUGIN_DOMAIN );
+		echo ' ';
+		echo __( 'It is <strong>NOT</strong> recommended to use this on a production site.', WOOPROGEN_PLUGIN_DOMAIN );
+		echo ' ';
+		echo __( 'The plugin will <strong>NOT</strong> clean up the data it has created.', WOOPROGEN_PLUGIN_DOMAIN );
+		echo ' ';
+		echo __( 'The plugin will create a <em>product-generator</em> user in the role of a <em>Shop Manager</em>.', WOOPROGEN_PLUGIN_DOMAIN );
+		echo '</div>';
+
+		echo '<div class="settings">';
+		echo '<form name="settings" method="post" action="">';
+		echo '<div>';
+
+		echo '<p>';
+		echo __( 'The continuous generator runs at most once per second, creating up to the indicated number of products per run.', WOOPROGEN_PLUGIN_DOMAIN );
+		echo ' ';
+		echo __( 'The continuous generator will try to create new products until stopped, or the total number of products reaches the indicated limit.', WOOPROGEN_PLUGIN_DOMAIN );
+		echo '</p>';
+
+		echo '<p>';
+		echo '<label>';
+		echo __( 'Limit', WOOPROGEN_PLUGIN_DOMAIN );
+		echo ' ';
+		echo sprintf( '<input type="text" name="limit" value="%d" />', $limit );
+		echo '</label>';
+		echo '</p>';
+
+		echo '<p>';
+		echo '<label>';
+		echo __( 'Per Run', WOOPROGEN_PLUGIN_DOMAIN );
+		echo ' ';
+		echo sprintf( '<input type="text" name="per_run" value="%d" />', $per_run );
+		echo ' ';
+		echo sprintf( __( 'Maximum %d', WOOPROGEN_PLUGIN_DOMAIN ), self::MAX_PER_RUN );
+		echo '</label>';
+		echo '</p>';
+
+		echo '<p>';
+		echo '<label>';
+		echo __( 'Titles', WOOPROGEN_PLUGIN_DOMAIN );
+		echo '<br/>';
+		echo '<textarea name="titles" style="height:10em;width:90%;">';
+		echo htmlentities( $titles );
+		echo '</textarea>';
+		echo '</label>';
+		echo '</p>';
+
+		echo '<p>';
+		echo '<label>';
+		echo __( 'Contents', WOOPROGEN_PLUGIN_DOMAIN );
+		echo '<br/>';
+		echo '<textarea name="contents" style="height:20em;width:90%;">';
+		echo htmlentities( $contents );
+		echo '</textarea>';
+		echo '</label>';
+		echo '</p>';
+
+		wp_nonce_field( 'admin', 'product-generator', true, true );
+
+		echo '<div class="buttons">';
+		echo sprintf( '<input class="button button-primary" type="submit" name="submit" value="%s" />', __( 'Save', WOOPROGEN_PLUGIN_DOMAIN ) );
+		echo '<input type="hidden" name="action" value="save" />';
+		echo '</div>';
+
+		echo '</div>';
+		echo '</form>';
+		echo '</div>';
+
+		echo '<h2>';
+		echo __( 'Reset', WOOPROGEN_PLUGIN_DOMAIN );
+		echo '</h2>';
+
+		echo '<div class="reset">';
+		echo '<form name="reset" method="post" action="">';
+		echo '<div>';
+
+		echo '<p>';
+		echo __( 'Reset to defaults', WOOPROGEN_PLUGIN_DOMAIN );
+		echo '</p>';
+
+		wp_nonce_field( 'admin', 'product-generator-reset', true, true );
+
+		echo '<div class="buttons">';
+		echo sprintf( '<input class="button button-primary" type="submit" name="submit" value="%s" />', __( 'Reset', WOOPROGEN_PLUGIN_DOMAIN ) );
+		echo '<input type="hidden" name="action" value="reset" />';
+		echo '</div>';
+
+		echo '</div>';
+		echo '</form>';
+		echo '</div>';
+
+		echo '<h2>';
+		echo __( 'Single Run', WOOPROGEN_PLUGIN_DOMAIN );
+		echo '</h2>';
+
+		echo '<div class="generate">';
+		echo '<form name="generate" method="post" action="">';
+		echo '<div>';
+
+		echo '<p>';
+		echo '<label>';
+		echo __( 'Generate up to &hellip;', WOOPROGEN_PLUGIN_DOMAIN );
+		echo ' ';
+		echo '<input type="text" name="max" value="1" />';
+		echo '</label>';
+		echo '</p>';
+
+		wp_nonce_field( 'admin', 'product-generate', true, true );
+
+		echo '<div class="buttons">';
+		echo sprintf( '<input class="button button-primary" type="submit" name="submit" value="%s" />', __( 'Run', WOOPROGEN_PLUGIN_DOMAIN ) );
+		echo '<input type="hidden" name="action" value="generate" />';
+		echo '</div>';
+
+		echo '</div>';
+		echo '</form>';
+		echo '</div>';
+
+		echo '<h2>';
+		echo __( 'Continuous AJAX Run', WOOPROGEN_PLUGIN_DOMAIN );
+		echo '</h2>';
+
+		echo '<div class="buttons">';
+		echo sprintf( '<input class="button" type="button" id="product-generator-run" name="product-generator-run" value="%s" />', __( 'Run', WOOPROGEN_PLUGIN_DOMAIN ) );
+		echo ' ';
+		echo sprintf( '<input class="button" type="button" id="product-generator-stop" name="product-generator-stop" value="%s" />', __( 'Stop', WOOPROGEN_PLUGIN_DOMAIN ) );
+		echo '</div>';
+
+		echo '<div id="product-generator-status"></div>';
+		echo '<div id="product-generator-update"></div>';
+		echo '<div id="product-generator-blinker"></div>';
+
+		$js_nonce = wp_create_nonce( 'product-generator-js' );
+
+		echo '<script type="text/javascript">';
+		echo 'if ( typeof jQuery !== "undefined" ) {';
+		echo 'jQuery(document).ready(function(){';
+		echo sprintf( 'ixprogen.limit = %d;', $limit );
+		echo 'jQuery("#product-generator-run").click(function(e){';
+		echo 'e.stopPropagation();';
+		echo sprintf(
+			'ixprogen.start("%s");',
+			add_query_arg(
+				array(
+					'product_generator' => $js_nonce
+				),
+				admin_url( 'admin-ajax.php' )
+			)
+		);
+		echo '});'; // run click
+		echo 'jQuery("#product-generator-stop").click(function(e){';
+		echo 'e.stopPropagation();';
+		echo 'ixprogen.stop();';
+		echo '});'; // stop click
+		echo '});'; // ready
+		echo '}';
+		echo '</script>';
+
+		echo '</div>'; // .product-generator-admin
 	}
 
 	/**
@@ -1150,4 +1144,4 @@ Vehicles';
 		return in_array( 'woocommerce/woocommerce.php', $active_plugins ); 
 	}
 }
-WooCommerce_Product_Generator::init();
+add_action( 'woocommerce_loaded', array( 'WooCommerce_Product_Generator', 'init' ) );
