@@ -80,7 +80,7 @@
 			<?php wp_nonce_field( 'admin', 'product-generator-reset', true, true ); ?>
 
 			<div class="buttons">
-			<button class="button button-primary" type="submit" name="submit"><?php esc_attr( 'Reset', 'woocommerce-product-generator' ); ?></button>
+			<button class="button button-primary" type="submit" name="submit"><?php _e( 'Reset', 'woocommerce-product-generator' ); ?></button>
 			<input type="hidden" name="action" value="reset" />
 			</div>
 
@@ -102,7 +102,7 @@
 			<?php wp_nonce_field( 'admin', 'product-generate', true, true ); ?>
 
 			<div class="buttons">
-				<button class="button button-primary" type="submit" name="submit" ><?php echo esc_attr( 'Run', 'woocommerce-product-generator' ); ?></button>
+				<button class="button button-primary" type="submit" name="submit" ><?php _e( 'Run', 'woocommerce-product-generator' ); ?></button>
 				<input type="hidden" name="action" value="generate" />
 			</div>
 
@@ -113,9 +113,8 @@
 	<h2><?php _e( 'Continuous AJAX Run', 'woocommerce-product-generator' ); ?></h2>
 
 	<div class="buttons">
-		<button class="button" type="button" id="product-generator-run" name="product-generator-run"><?php echo esc_attr( 'Run', 'woocommerce-product-generator' );?></button>
-		
-		<button class="button" type="button" id="product-generator-stop" name="product-generator-stop"><?php echo esc_attr( 'Stop', 'woocommerce-product-generator' ); ?></button>
+		<button class="button" type="button" id="product-generator-run" name="product-generator-run"><?php _e( 'Run', 'woocommerce-product-generator' );?></button>
+		<button class="button" type="button" id="product-generator-stop" name="product-generator-stop"><?php _e( 'Stop', 'woocommerce-product-generator' ); ?></button>
 	</div>
 
 	<div id="product-generator-status"></div>
