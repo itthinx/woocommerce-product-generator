@@ -91,8 +91,21 @@ class WooCommerce_Product_Generator {
 	}
 	
 	public static function load() {
-		wp_register_script( 'product-generator', WOOPROGEN_PLUGIN_URL . '/js/product-generator.js', array( 'jquery' ), WOOPROGEN_PLUGIN_VERSION, true );
-		wp_register_style( 'product-generator', WOOPROGEN_PLUGIN_URL . '/css/product-generator.css', array(), WOOPROGEN_PLUGIN_VERSION );
+		$suffix = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+		wp_enqueue_script( 'product-generator', plugins_url( 'js/product-generator' . $suffix . '.js', __FILE__ ), array( 'jquery' ), WOOPROGEN_PLUGIN_VERSION, true );
+
+		$l10n = array(
+			'generating' => __( 'Generating', 'woocommerce-product-generator' ),
+			'total' => __( 'Total Products: %d', 'woocommerce-product-generator' ),
+			'running' => __( 'Running', 'woocommerce-product-generator' ),
+			'stopped' => __( 'Stopped', 'woocommerce-product-generator' ),
+			'ajax_url' => admin_url( 'admin-ajax.php' ),
+			'js_nonce'	=> wp_create_nonce( 'product-generator-js' ),
+			'limit' 	=> get_option( 'woocommerce-product-generator-limit', self::DEFAULT_LIMIT )
+		);
+		wp_localize_script( 'product-generator', 'WC_Product_Generator', $l10n );
+
+		wp_enqueue_style( 'product-generator', plugins_url( 'css/product-generator.css', __FILE__ ), array(), WOOPROGEN_PLUGIN_VERSION );
 	}
 
 	/**
