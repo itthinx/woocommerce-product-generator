@@ -391,71 +391,92 @@ class WooCommerce_Product_Generator {
 		$content = self::get_content();
 		$excerpt = self::get_excerpt( 3, $content );
 
-		$post_id = wp_insert_post( array(
-			'post_type' => 'product',
-			'post_title' => $title,
-			'post_excerpt' => $excerpt,
-			'post_content' => $content,
-			'post_status' => 'publish',
-			'post_author' => $user_id
-		) );
-		if ( !( $post_id instanceof WP_Error ) ) {
+		$product = new WC_Product_Simple();
 
-			// visibility
-			update_post_meta( $post_id, '_visibility', 'visible' );
+		// price
+		$price = wc_format_decimal( floatval( rand( 1, 10000 ) ) / 100.0 );
 
-			// price
-			$price = wc_format_decimal( floatval( rand( 1, 10000 ) ) / 100.0 );
-			update_post_meta( $post_id, '_price', $price );
-			update_post_meta( $post_id, '_regular_price', $price );
-
-			// add categories
-			$terms = array();
-			$cats = explode( "\n", self::get_default_categories() );
-			$c_n = count( $cats );
-			$c_max = rand( 1, 3 );
-			for ( $i = 0; $i < $c_max ; $i++ ) {
-				$terms[] = $cats[rand( 0, $c_n - 1 )];
+		// add categories
+		$terms = $term_ids = array();
+		$cats = explode( "\n", self::get_default_categories() );
+		$c_n = count( $cats );
+		$c_max = rand( 1, 3 );
+		for ( $i = 0; $i < $c_max ; $i++ ) {
+			$terms[] = $cats[rand( 0, $c_n - 1 )];
+		}
+		
+		foreach( $terms as $term ){
+			if ( false === $term_obj = get_term_by( 'slug', $term, 'product_cat', ARRAY_A ) ) {
+				$term_obj = wp_insert_term( $term, 'product_cat' );
 			}
-			wp_set_object_terms( $post_id, $terms, 'product_cat', true );
-
-			// add tags
-			$tags = explode( " ", $title );
-			$tags[] = 'progen';
-			$potential = explode( " ", $content );
-			$n = count( $potential );
-			$t_max = rand( 1, 7 );
-			for ( $i = 0; $i < $t_max ; $i++ ) {
-				$tags[] = preg_replace( "/[^a-zA-Z0-9 ]/", '', $potential[rand( 0, $n-1 )] );
-			}
-			wp_set_object_terms( $post_id, $tags, 'product_tag', true );
-
-			// product image
-			$image = self::get_image();
-			$image_name = self::get_image_name();
-			$r = wp_upload_bits( $image_name, null, $image );
-			if ( !empty( $r ) && is_array( $r ) && !empty( $r['file'] ) ) {
-				$filetype = wp_check_filetype( $r['file'] );
-				$attachment_id = wp_insert_attachment(
-					array(
-						'post_title' => $title,
-						'post_mime_type' => $filetype['type'],
-						'post_status' => 'publish',
-						'post_author' => $user_id
-					),
-					$r['file'],
-					$post_id
-				);
-				if ( !empty( $attachment_id ) ) {
-					include_once ABSPATH . 'wp-admin/includes/image.php';
-					if ( function_exists( 'wp_generate_attachment_metadata' ) ) {
-						$meta = wp_generate_attachment_metadata( $attachment_id, $r['file'] );
-						wp_update_attachment_metadata( $attachment_id, $meta );
-					}
-					update_post_meta( $post_id, '_thumbnail_id', $attachment_id );
-				}
+			if ( ! is_wp_error( $term_obj ) ) {
+				$term_ids[] = $term_obj['term_id'];
 			}
 		}
+
+		// add tags
+		$tag_ids = array();
+		$tags = explode( " ", $title );
+		$tags[] = 'progen';
+		$potential = explode( " ", $content );
+		$n = count( $potential );
+		$t_max = rand( 1, 7 );
+		for ( $i = 0; $i < $t_max ; $i++ ) {
+			$tags[] = preg_replace( "/[^a-zA-Z0-9 ]/", '', $potential[rand( 0, $n-1 )] );
+		}
+		
+		foreach( $tags as $tag ){
+			if ( false === $tag_obj = get_term_by( 'slug', $tag, 'product_tag', ARRAY_A ) ) {
+				$tag_obj = wp_insert_term( $tag, 'product_tag' );
+			}
+			if ( ! is_wp_error( $tag_obj ) ) {
+				$tag_ids[] = $tag_obj['term_id'];
+			}
+		}
+
+		// product image
+		$image = self::get_image();
+		$image_name = self::get_image_name();
+		$attachment_id = '';
+		$r = wp_upload_bits( $image_name, null, $image );
+		if ( !empty( $r ) && is_array( $r ) && !empty( $r['file'] ) ) {
+			$filetype = wp_check_filetype( $r['file'] );
+			$attachment_id = wp_insert_attachment(
+				array(
+					'post_title' => $title,
+					'post_mime_type' => $filetype['type'],
+					'post_status' => 'publish',
+				),
+				$r['file'],
+				$product->get_id()
+			);
+			if ( !empty( $attachment_id ) ) {
+				include_once ABSPATH . 'wp-admin/includes/image.php';
+				if ( function_exists( 'wp_generate_attachment_metadata' ) ) {
+					$meta = wp_generate_attachment_metadata( $attachment_id, $r['file'] );
+					wp_update_attachment_metadata( $attachment_id, $meta );
+				}
+			}
+	
+		}
+
+		$props = array(
+			'name' => $title,
+			'price' => $price,
+			'regular_price' => $price,
+			'description' => $content,
+			'visibility'	=> 'visible',
+			'short_description' => $excerpt,
+			'category_ids' => $term_ids,
+			'tag_ids' => $tag_ids,
+			'status' => 'publish',
+			'catalog_visibility' => 'visible',
+			'set_image_id' => $attachment_id
+
+		);
+
+		$product->set_props( $props );
+		$product->save();
 	}
 
 	/**
