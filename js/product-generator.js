@@ -52,7 +52,7 @@ ixprogen.generate = function() {
 				},
 				success : function ( data ) {
 					if ( typeof data.total !== "undefined" ) {
-						text = replace.WC_Product_Generator.total.replace( "", data.total);
+						text = replace.WC_Product_Generator.total.replace( "%d", data.total);
 						$update.html( '<p>' + text + '</p>' );
 						if ( ixprogen.limit !== null ) {
 							if ( data.total >= ixprogen.limit ) {
