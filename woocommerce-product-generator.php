@@ -516,6 +516,7 @@ class WooCommerce_Product_Generator {
 	/**
 	 * Get default titles from file.
 	 * @return string
+	 * @since  1.2.0
 	 */
 	private static function get_default_titles() {
 		if( ! self::$default_titles ) {
@@ -530,6 +531,7 @@ class WooCommerce_Product_Generator {
 	/**
 	 * Get default content from file.
 	 * @return string
+	 * @since  1.2.0
 	 */
 	private static function get_default_contents() {
 		if( ! self::$default_contents ) {
@@ -544,6 +546,7 @@ class WooCommerce_Product_Generator {
 	/**
 	 * Get default categories from file.
 	 * @return string
+	 * @since  1.2.0
 	 */
 	private static function get_default_categories() {
 		if( ! self::$default_categories ) {
