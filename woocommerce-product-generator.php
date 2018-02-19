@@ -46,6 +46,8 @@ class WooCommerce_Product_Generator {
 
 	const DEFAULT_LIMIT = 10000;
 
+	const REQUIRED_WOO = '3.0.0';
+
 	private static $default_titles = '';
 	private static $default_contents = '';
 	private static $default_categories = '';
@@ -54,7 +56,15 @@ class WooCommerce_Product_Generator {
 	 * Initialize hooks.
 	 */
 	public static function init() {
+
 		add_action( 'init', array( __CLASS__, 'load_plugin_textdomain' ) );
+
+		// Check we're running the required version of WC.
+		if ( ! defined( 'WC_VERSION' ) || version_compare( WC_VERSION, SELF::REQUIRED_WOO, '<' ) ) {
+			add_action( 'admin_notices', array( __CLASS__, 'min_woo_notice' ) );
+			return false;
+		}
+
 		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
 		add_filter( 'plugin_action_links_'. plugin_basename( __FILE__ ), array( __CLASS__, 'admin_settings_link' ) );
 		add_action( 'wp_ajax_product_generator', array( __CLASS__, 'wp_init' ) );
@@ -75,6 +85,21 @@ class WooCommerce_Product_Generator {
 	public static function load_plugin_textdomain() {
 		load_plugin_textdomain( 'woocommerce-product-generator' , false , dirname( plugin_basename( __FILE__ ) ) .  '/languages/' );
 	}
+
+
+	/**
+	 * Displays a warning message if version check fails.
+	 *
+	 * @return string
+	 */
+	public static function min_woo_notice() {
+	    echo '<div class="error"><p>' . sprintf( __( 'WooCommerce Product Generator requires at least WooCommerce %s in order to function. Please upgrade WooCommerce.', 'woocommerce-product-generator' ), self::REQUIRED_WOO ) . '</p></div>';
+	}
+
+	/*-----------------------------------------------------------------------------------*/
+	/*  Admin                                                                     */
+	/*-----------------------------------------------------------------------------------*/
+
 
 	/**
 	 * Add the Generator menu item.
