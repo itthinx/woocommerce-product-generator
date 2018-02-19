@@ -57,7 +57,7 @@ class WooCommerce_Product_Generator {
 		add_action( 'init', array( __CLASS__, 'load_plugin_textdomain' ) );
 		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
 		add_filter( 'plugin_action_links_'. plugin_basename( __FILE__ ), array( __CLASS__, 'admin_settings_link' ) );
-		add_action( 'init', array( __CLASS__, 'wp_init' ) );
+		add_action( 'wp_ajax_product_generator', array( __CLASS__, 'wp_init' ) );
 	}
 
 	/*-----------------------------------------------------------------------------------*/
@@ -129,10 +129,7 @@ class WooCommerce_Product_Generator {
 	 * property.
 	 */
 	public static function wp_init() {
-		if (
-			isset( $_REQUEST['product_generator'] ) && 
-			wp_verify_nonce( $_REQUEST['product_generator'], 'product-generator-js' )
-		) {
+		if ( wp_verify_nonce( $_POST['nonce'], 'product-generator-js' ) ) {
 			// run generator
 			$per_run = get_option( 'woocommerce-product-generator-per-run', self::DEFAULT_PER_RUN );
 			self::run( $per_run );
