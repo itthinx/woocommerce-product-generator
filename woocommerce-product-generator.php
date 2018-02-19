@@ -552,8 +552,6 @@ Vehicles';
 	 * Initialize hooks.
 	 */
 	public static function init() {
-		// register_activation_hook(__FILE__, array( __CLASS__,'activate' ) );
-		// register_deactivation_hook(__FILE__,  array( __CLASS__,'deactivate' ) );
 		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
 		if ( is_admin() ) {
 			add_filter( 'plugin_action_links_'. plugin_basename( __FILE__ ), array( __CLASS__, 'admin_settings_link' ) );
@@ -561,17 +559,6 @@ Vehicles';
 		add_action( 'init', array( __CLASS__, 'wp_init' ) );
 	}
 
-	/**
-	 * Does nothing for now.
-	 */
-	public static function activate() {
-	}
-
-	/**
-	 * Does nothing for now.
-	 */
-	public static function deactivate() {
-	}
 
 	/**
 	 * Add the Generator menu item.
