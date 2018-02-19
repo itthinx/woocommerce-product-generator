@@ -44,7 +44,7 @@ ixprogen.generate = function() {
 		ixprogen.generating = true;
 		jQuery.ajax({
 				type : 'POST',
-				url  : ixprogen.url,
+				url  : WC_Product_Generator.ajax_url,
 				data : { "action" : "product_generator", "nonce" : ixprogen.nonce },
 				complete : function() {
 					ixprogen.generating = false;
@@ -69,7 +69,6 @@ ixprogen.generate = function() {
 ixprogen.start = function() {
 	if ( !ixprogen.running ) {
 		ixprogen.running = true;
-		ixprogen.url = WC_Product_Generator.ajax_url;
 		ixprogen.nonce = WC_Product_Generator.js_nonce;
 		ixprogen.exec();
 		var $status = jQuery( "#product-generator-status" );
