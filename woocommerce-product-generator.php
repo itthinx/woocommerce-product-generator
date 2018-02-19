@@ -65,8 +65,8 @@ class WooCommerce_Product_Generator {
 	public static function admin_menu() {
 		$page = add_submenu_page(
 			'woocommerce',
-			'Product Generator',
-			'Product Generator',
+			__( 'Product Generator', WOOPROGEN_PLUGIN_DOMAIN ),
+			__( 'Product Generator', WOOPROGEN_PLUGIN_DOMAIN ),
 			'manage_woocommerce',
 			'product-generator',
 			array( __CLASS__, 'generator' )
