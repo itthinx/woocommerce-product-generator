@@ -1,0 +1,168 @@
+# Copyright (C) 2018 itthinx
+# This file is distributed under the GPLv3.
+msgid ""
+msgstr ""
+"Project-Id-Version: WooCommerce Product Generator 1.2.0\n"
+"Report-Msgid-Bugs-To: "
+"https://github.com/itthinx/woocommerce-product-generator/issues\n"
+"POT-Creation-Date: 2018-02-19 21:15:29+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2018-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"X-Generator: grunt-wp-i18n1.0.1\n"
+
+#: views/admin-generator.php:12 woocommerce-product-generator.php:110
+#: woocommerce-product-generator.php:111 woocommerce-product-generator.php:144
+msgid "Product Generator"
+msgstr ""
+
+#: views/admin-generator.php:17
+msgid "This produces demo products for testing purposes."
+msgstr ""
+
+#: views/admin-generator.php:19
+msgid "It is <strong>NOT</strong> recommended to use this on a production site."
+msgstr ""
+
+#: views/admin-generator.php:21
+msgid "The plugin will <strong>NOT</strong> clean up the data it has created."
+msgstr ""
+
+#: views/admin-generator.php:23
+msgid ""
+"The plugin will create a <em>product-generator</em> user in the role of a "
+"<em>Shop Manager</em>."
+msgstr ""
+
+#: views/admin-generator.php:29
+msgid ""
+"The continuous generator runs at most once per second, creating up to the "
+"indicated number of products per run."
+msgstr ""
+
+#: views/admin-generator.php:30
+msgid ""
+"The continuous generator will try to create new products until stopped, or "
+"the total number of products reaches the indicated limit."
+msgstr ""
+
+#: views/admin-generator.php:34
+msgid "Limit"
+msgstr ""
+
+#: views/admin-generator.php:40
+msgid "Per Run"
+msgstr ""
+
+#: views/admin-generator.php:42
+msgid "Maximum %d"
+msgstr ""
+
+#: views/admin-generator.php:47
+msgid "Titles"
+msgstr ""
+
+#: views/admin-generator.php:55
+msgid "Contents"
+msgstr ""
+
+#: views/admin-generator.php:64
+msgid "Save"
+msgstr ""
+
+#: views/admin-generator.php:71 views/admin-generator.php:83
+msgid "Reset"
+msgstr ""
+
+#: views/admin-generator.php:77
+msgid "Reset to defaults"
+msgstr ""
+
+#: views/admin-generator.php:90
+msgid "Single Run"
+msgstr ""
+
+#: views/admin-generator.php:97
+msgid "Generate up to &hellip;"
+msgstr ""
+
+#: views/admin-generator.php:105 views/admin-generator.php:116
+msgid "Run"
+msgstr ""
+
+#: views/admin-generator.php:113
+msgid "Continuous AJAX Run"
+msgstr ""
+
+#: views/admin-generator.php:117
+msgid "Stop"
+msgstr ""
+
+#: woocommerce-product-generator.php:96
+msgid ""
+"WooCommerce Product Generator requires at least WooCommerce %s in order to "
+"function. Please upgrade WooCommerce."
+msgstr ""
+
+#: woocommerce-product-generator.php:124
+msgid "Generating"
+msgstr ""
+
+#: woocommerce-product-generator.php:125
+msgid "Total Products: %d"
+msgstr ""
+
+#: woocommerce-product-generator.php:126
+msgid "Running"
+msgstr ""
+
+#: woocommerce-product-generator.php:127
+msgid "Stopped"
+msgstr ""
+
+#: woocommerce-product-generator.php:170
+msgid "Access denied."
+msgstr ""
+
+#: woocommerce-product-generator.php:394
+msgid "Product generator user created on %s:"
+msgstr ""
+
+#: woocommerce-product-generator.php:395
+msgid "Username: %s"
+msgstr ""
+
+#: woocommerce-product-generator.php:396
+msgid "Password: %s"
+msgstr ""
+
+#: woocommerce-product-generator.php:397
+msgid "The user has the role of a Shop Manager."
+msgstr ""
+
+#: woocommerce-product-generator.php:399
+msgid "[%s] Product Generator User"
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "WooCommerce Product Generator"
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid "http://www.itthinx.com/"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid "A sample product generator for WooCommerce."
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "itthinx"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "http://www.itthinx.com"
+msgstr ""
