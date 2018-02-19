@@ -53,11 +53,27 @@ class WooCommerce_Product_Generator {
 	 * Initialize hooks.
 	 */
 	public static function init() {
+		add_action( 'init', array( __CLASS__, 'load_plugin_textdomain' ) );
 		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
 		add_filter( 'plugin_action_links_'. plugin_basename( __FILE__ ), array( __CLASS__, 'admin_settings_link' ) );
 		add_action( 'init', array( __CLASS__, 'wp_init' ) );
 	}
 
+	/*-----------------------------------------------------------------------------------*/
+	/*  Localization                                                                     */
+	/*-----------------------------------------------------------------------------------*/
+
+	/**
+	 * Make the plugin translation ready.
+	 *
+	 * Translations should be added in the WordPress language directory:
+	 *      - WP_LANG_DIR/plugins/woocommerce-product-generator-LOCALE.mo
+	 *
+	 * @since  1.2.0
+	 */
+	public static function load_plugin_textdomain() {
+		load_plugin_textdomain( 'woocommerce-product-generator' , false , dirname( plugin_basename( __FILE__ ) ) .  '/languages/' );
+	}
 
 	/**
 	 * Add the Generator menu item.
@@ -65,8 +81,8 @@ class WooCommerce_Product_Generator {
 	public static function admin_menu() {
 		$page = add_submenu_page(
 			'woocommerce',
-			__( 'Product Generator', WOOPROGEN_PLUGIN_DOMAIN ),
-			__( 'Product Generator', WOOPROGEN_PLUGIN_DOMAIN ),
+			__( 'Product Generator', 'woocommerce-product-generator' ),
+			__( 'Product Generator', 'woocommerce-product-generator' ),
 			'manage_woocommerce',
 			'product-generator',
 			array( __CLASS__, 'generator' )
@@ -86,7 +102,7 @@ class WooCommerce_Product_Generator {
 	 * @param array $links with additional links
 	 */
 	public static function admin_settings_link( $links ) {
-		$links[] = '<a href="' . get_admin_url( null, 'admin.php?page=product-generator' ) . '">' . __( 'Product Generator', WOOPROGEN_PLUGIN_DOMAIN ) . '</a>';
+		$links[] = '<a href="' . get_admin_url( null, 'admin.php?page=product-generator' ) . '">' . __( 'Product Generator', 'woocommerce-product-generator' ) . '</a>';
 		return $links;
 	}
 
@@ -115,11 +131,8 @@ class WooCommerce_Product_Generator {
 
 	public static function generator() {
 		if ( !current_user_can( 'manage_woocommerce' ) ) {
-			wp_die( __( 'Access denied.', WOOPROGEN_PLUGIN_DOMAIN ) );
+			wp_die( __( 'Access denied.', 'woocommerce-product-generator' ) );
 		}
-
-		wp_enqueue_script( 'product-generator' );
-		wp_enqueue_style( 'product-generator' );
 
 		if ( isset( $_POST['action'] ) && ( $_POST['action'] == 'save' ) && wp_verify_nonce( $_POST['product-generator'], 'admin' ) ) {
 			$limit    = !empty( $_POST['limit'] ) ? intval( trim( $_POST['limit'] ) ) : self::DEFAULT_LIMIT;
@@ -170,8 +183,8 @@ class WooCommerce_Product_Generator {
 
 		$limit    = get_option( 'woocommerce-product-generator-limit', self::DEFAULT_LIMIT );
 		$per_run  = get_option( 'woocommerce-product-generator-per-run', self::DEFAULT_PER_RUN );
-		$titles   = stripslashes( get_option( 'woocommerce-product-generator-titles', self::get_default_titles() ) );
-		$contents = stripslashes( get_option( 'woocommerce-product-generator-contents', self::get_default_contents() ) );
+		$titles   = trim( stripslashes( get_option( 'woocommerce-product-generator-titles', self::get_default_titles() ) ) );
+		$contents = trim( stripslashes( get_option( 'woocommerce-product-generator-contents', self::get_default_contents() ) ) );
 
 		$titles = explode( "\n", $titles );
 		sort( $titles );
@@ -506,12 +519,12 @@ class WooCommerce_Product_Generator {
 				$user = get_userdata( $user_id );
 				$blogname = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
 
-				$message  = sprintf( __( 'Product generator user created on %s:', WOOPROGEN_PLUGIN_DOMAIN ), $blogname ) . "\r\n\r\n";
-				$message .= sprintf( __( 'Username: %s', WOOPROGEN_PLUGIN_DOMAIN ), $user->user_login ) . "\r\n\r\n";
-				$message .= sprintf( __( 'Password: %s', WOOPROGEN_PLUGIN_DOMAIN ), $user_pass ) . "\r\n\r\n";
-				$message .= __( 'The user has the role of a Shop Manager.', WOOPROGEN_PLUGIN_DOMAIN ) . "\r\n";
+				$message  = sprintf( __( 'Product generator user created on %s:', 'woocommerce-product-generator' ), $blogname ) . "\r\n\r\n";
+				$message .= sprintf( __( 'Username: %s', 'woocommerce-product-generator' ), $user->user_login ) . "\r\n\r\n";
+				$message .= sprintf( __( 'Password: %s', 'woocommerce-product-generator' ), $user_pass ) . "\r\n\r\n";
+				$message .= __( 'The user has the role of a Shop Manager.', 'woocommerce-product-generator' ) . "\r\n";
 
-				@wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Product Generator User', WOOPROGEN_PLUGIN_DOMAIN ), $blogname ), $message);
+				@wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Product Generator User', 'woocommerce-product-generator' ), $blogname ), $message);
 			}
 		}
 		return $user_id;
