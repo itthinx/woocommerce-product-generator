@@ -553,9 +553,7 @@ Vehicles';
 	 */
 	public static function init() {
 		add_action( 'admin_menu', array( __CLASS__, 'admin_menu' ) );
-		if ( is_admin() ) {
-			add_filter( 'plugin_action_links_'. plugin_basename( __FILE__ ), array( __CLASS__, 'admin_settings_link' ) );
-		}
+		add_filter( 'plugin_action_links_'. plugin_basename( __FILE__ ), array( __CLASS__, 'admin_settings_link' ) );
 		add_action( 'init', array( __CLASS__, 'wp_init' ) );
 	}
 
