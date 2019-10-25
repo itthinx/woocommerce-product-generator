@@ -895,87 +895,114 @@ Vehicles';
 		) );
 	}
 
-	public static function create_product() {
-		$user_id = self::get_user_id(); 
-		$title = self::get_title();
-		$i = 0;
-		while( ( $i < 99 ) ) {
-			if ( get_page_by_title( $title, OBJECT, 'product' ) ) {
-				$title .= " " . self::get_title();
-			} else {
-				break;
-			}
-			$i++;
-		}
+	public static function create_product()
+    {
+        $user_id = self::get_user_id();
+        $title = self::get_title();
+        $i = 0;
+        while (($i < 99)) {
+            if (get_page_by_title($title, OBJECT, 'product')) {
+                $title .= " " . self::get_title();
+            } else {
+                break;
+            }
+            $i++;
+        }
 
-		$content = self::get_content();
-		$excerpt = self::get_excerpt( 3, $content );
+        $content = self::get_content();
+        $excerpt = self::get_excerpt(3, $content);
 
-		$post_id = wp_insert_post( array(
-			'post_type' => 'product',
-			'post_title' => $title,
-			'post_excerpt' => $excerpt,
-			'post_content' => $content,
-			'post_status' => 'publish',
-			'post_author' => $user_id
-		) );
-		if ( !( $post_id instanceof WP_Error ) ) {
+        $product = new WC_Product_Simple();
 
-			// visibility
-			update_post_meta( $post_id, '_visibility', 'visible' );
+        //Set Title
+        $product->set_name($title);
 
-			// price
-			$price = wc_format_decimal( floatval( rand( 1, 10000 ) ) / 100.0 );
-			update_post_meta( $post_id, '_price', $price );
-			update_post_meta( $post_id, '_regular_price', $price );
+        // Set content.
+        $product->set_description($content);
 
-			// add categories
-			$terms = array();
-			$cats = explode( "\n", self::DEFAULT_CATEGORIES );
-			$c_n = count( $cats );
-			$c_max = rand( 1, 3 );
-			for ( $i = 0; $i < $c_max ; $i++ ) {
-				$terms[] = $cats[rand( 0, $c_n - 1 )];
-			}
-			wp_set_object_terms( $post_id, $terms, 'product_cat', true );
+        // Post excerpt.
+        $product->set_short_description($excerpt);
 
-			// add tags
-			$tags = explode( " ", $title );
-			$tags[] = 'progen';
-			$potential = explode( " ", $content );
-			$n = count( $potential );
-			$t_max = rand( 1, 7 );
-			for ( $i = 0; $i < $t_max ; $i++ ) {
-				$tags[] = preg_replace( "/[^a-zA-Z0-9 ]/", '', $potential[rand( 0, $n-1 )] );
-			}
-			wp_set_object_terms( $post_id, $tags, 'product_tag', true );
+		$product->set_status('publish');
+        //Set Price
+        $price = wc_format_decimal(floatval(rand(1, 10000)) / 100.0);
+        $product->set_regular_price($price);
+        $product->set_price($price);
 
-			// product image
-			$image = self::get_image();
-			$image_name = self::get_image_name();
-			$r = wp_upload_bits( $image_name, null, $image );
-			if ( !empty( $r ) && is_array( $r ) && !empty( $r['file'] ) ) {
-				$filetype = wp_check_filetype( $r['file'] );
-				$attachment_id = wp_insert_attachment(
-					array(
-						'post_title' => $title,
-						'post_mime_type' => $filetype['type'],
-						'post_status' => 'publish',
-						'post_author' => $user_id
-					),
-					$r['file'],
-					$post_id
-				);
-				if ( !empty( $attachment_id ) ) {
-					include_once ABSPATH . 'wp-admin/includes/image.php';
-					if ( function_exists( 'wp_generate_attachment_metadata' ) ) {
-						$meta = wp_generate_attachment_metadata( $attachment_id, $r['file'] );
-						wp_update_attachment_metadata( $attachment_id, $meta );
-					}
-					update_post_meta( $post_id, '_thumbnail_id', $attachment_id );
-				}
-			}
-		}
+        // add categories
+        $terms = array();
+        $cats = explode("\n", self::DEFAULT_CATEGORIES);
+        $c_n = count($cats);
+        $c_max = rand(1, 3);
+        for ($i = 0; $i < $c_max ; $i++) {
+            $terms[] = $cats[rand(0, $c_n - 1)];
+        }
+
+        $product->set_category_ids(self::get_term_ids_to_set($terms, 'product_cat'));
+
+        // add tags
+        $tags = explode(" ", $title);
+        $tags[] = 'progen';
+        $potential = explode(" ", $content);
+        $n = count($potential);
+        $t_max = rand(1, 7);
+        for ($i = 0; $i < $t_max ; $i++) {
+            $tags[] = preg_replace("/[^a-zA-Z0-9 ]/", '', $potential[rand(0, $n-1)]);
+        }
+
+        $product->set_tag_ids(self::get_term_ids_to_set($tags, 'product_tag'));
+
+        //Set Image
+        $image = self::get_image();
+        $image_name = self::get_image_name();
+        $r = wp_upload_bits($image_name, null, $image);
+        if (!empty($r) && is_array($r) && !empty($r['file'])) {
+            $filetype = wp_check_filetype($r['file']);
+            $attachment_id = wp_insert_attachment(
+                array(
+                        'post_title' => $title,
+                        'post_mime_type' => $filetype['type'],
+                        'post_status' => 'publish',
+                        'post_author' => $user_id
+                    ),
+                $r['file']
+            );
+            if (!empty($attachment_id)) {
+                include_once ABSPATH . 'wp-admin/includes/image.php';
+                if (function_exists('wp_generate_attachment_metadata')) {
+                    $meta = wp_generate_attachment_metadata($attachment_id, $r['file']);
+                    wp_update_attachment_metadata($attachment_id, $meta);
+                }
+                //update_post_meta($post_id, '_thumbnail_id', $attachment_id);
+                $product->set_image_id($attachment_id);
+            }
+        }
+
+        $post_id = $product->save();
+    }
+
+    /**
+     * Fetch Term Id if exists or create
+     */
+    public static function get_term_ids_to_set($term_names, $taxonomy)
+    {
+        $term_ids = array();
+
+        // Loop through the terms
+        foreach ($term_names as $term_name) {
+            // Get the term ID and check if it exist
+            if ($term_id = term_exists($term_name, $taxonomy)) {
+                // Add each term ID in an array
+                $term_ids[] = $term_id;
+            } else {
+                $inserted_term = wp_insert_term($term_name, $taxonomy);
+
+                if (!is_wp_error($inserted_term)) {
+                    $term_ids[] = $inserted_term['term_id'];
+                }
+            }
+        }
+        return $term_ids;
 	}
 
 	/**
