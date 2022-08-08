@@ -931,6 +931,17 @@ Vehicles';
 			update_post_meta( $post_id, '_price', $price );
 			update_post_meta( $post_id, '_regular_price', $price );
 
+			// stock
+			$stock = rand( 0, 25 );
+			update_post_meta( $post_id, '_stock', $stock );
+			$manage = rand( 0, 1 );
+			if ( $manage ) {
+				$manage_value = 'yes';
+			} else {
+				$manage_value = 'no';
+			}
+			update_post_meta( $post_id, '_manage_stock', $manage_value );
+
 			// add categories
 			$terms = array();
 			$cats = explode( "\n", self::DEFAULT_CATEGORIES );
