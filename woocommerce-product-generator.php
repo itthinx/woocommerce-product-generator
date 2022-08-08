@@ -357,7 +357,7 @@ class WooCommerce_Product_Generator {
 			'tag_ids' => $tag_ids,
 			'status' => 'publish',
 			'catalog_visibility' => 'visible',
-			'set_image_id' => $attachment_id
+			'image_id' => $attachment_id
 
 		);
 
