@@ -278,7 +278,13 @@ class WooCommerce_Product_Generator {
 		$content = self::get_content();
 		$excerpt = self::get_excerpt( 3, $content );
 
-		$product = new WC_Product_Simple();
+		// random choice of simple or variable product generated, 80% chance of variable product
+		$is_variable = ( rand( 1, 100 ) >= 20 );
+		if ( $is_variable ) {
+			$product = new WC_Product_Variable();
+		} else {
+			$product = new WC_Product_Simple();
+		}
 
 		// price
 		$price = wc_format_decimal( floatval( rand( 1, 10000 ) ) / 100.0 );
@@ -322,6 +328,7 @@ class WooCommerce_Product_Generator {
 		}
 
 		// add attributes
+		$variation_attributes = array();
 		$attributes = array();
 		$attribute_defs = explode( "\n", self::get_default_attributes() );
 		foreach ( $attribute_defs as $attribute_def ) {
@@ -366,6 +373,8 @@ class WooCommerce_Product_Generator {
 							$attribute->set_visible( true );
 							$attribute->set_variation( true );
 							$attributes[] = $attribute;
+
+							$variation_attributes[$taxonomy_name] = $attribute_terms;
 						}
 					}
 				}
@@ -399,17 +408,20 @@ class WooCommerce_Product_Generator {
 		}
 
 		$props = array(
-			'name' => $title,
-			'price' => $price,
-			'regular_price' => $price,
-			'description' => $content,
-			'visibility'	=> 'visible',
-			'short_description' => $excerpt,
-			'category_ids' => $term_ids,
-			'tag_ids' => $tag_ids,
-			'status' => 'publish',
+			'name'               => $title,
+			'price'              => $price,
+			'regular_price'      => $price,
+			'description'        => $content,
+			'visibility'	     => 'visible',
+			'short_description'  => $excerpt,
+			'category_ids'       => $term_ids,
+			'tag_ids'            => $tag_ids,
+			'status'             => 'publish',
 			'catalog_visibility' => 'visible',
-			'image_id' => $attachment_id
+			'image_id'           => $attachment_id
+			// @todo featured
+			// @todo stock status
+			// @todo on sale
 		);
 
 		$product->set_props( $props );
@@ -417,6 +429,40 @@ class WooCommerce_Product_Generator {
 			$product->set_attributes( $attributes );
 		}
 		$product->save();
+
+		// variations
+		if ( $is_variable ) {
+			$max = 1;
+			foreach ( $variation_attributes as $taxonomy_name => $terms ) {
+				$max *= count( $terms );
+			}
+			$max = rand( 1, $max );
+			$combos = array();
+			for ( $i = 0; $i < $max; $i++ ) {
+				$pick = array();
+				foreach ( $variation_attributes as $taxonomy_name => $terms ) {
+					$n = rand( 0, count( $terms ) - 1 );
+					$pick[$taxonomy_name] = $terms[$n];
+				}
+				$hash = md5( json_encode( $pick ) );
+				if ( !key_exists( $hash, $combos ) ) {
+					$combos[$hash] = $pick;
+				}
+			}
+			if ( count( $combos ) > 0 ) {
+				foreach ( $combos as $combo ) {
+					$variation = new WC_Product_Variation();
+					$variation->set_parent_id( $product->get_id() );
+					$variation->set_attributes( $combo );
+					$variation_price = $price * ( 1 + rand( -25, 25 ) / 100 );
+					$variation->set_price( $variation_price );
+					$variation->set_regular_price( $variation_price );
+					// @todo stock status
+					// @todo on sale
+					$variation->save();
+				}
+			}
+		}
 	}
 
 	/**
