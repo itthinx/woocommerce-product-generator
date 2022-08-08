@@ -3,7 +3,7 @@ Contributors: itthinx
 Donate link: http://www.itthinx.com/plugins/woocommerce-product-generator/
 Tags: automatic, benchmark, example, generator, performance, product, products, sample, test, tester, testing, test-tool, woocommerce
 Requires at least: 4.0
-Tested up to: 4.9.4
+Tested up to: 5.7
 Stable tag: 1.2.0
 License: GPLv3
 WC requires at least: 3.0.0

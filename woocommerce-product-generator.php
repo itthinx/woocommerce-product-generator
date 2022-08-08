@@ -26,7 +26,8 @@
  * Author URI: http://www.itthinx.com
  * Donate-Link: http://www.itthinx.com
  * License: GPLv3
- * 
+ * WC requires at least: 3.0
+ * WC tested up to: 5.1
  */
 
 define( 'WOOPROGEN_PLUGIN_VERSION', '1.2.0' );
