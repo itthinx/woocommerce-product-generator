@@ -52,6 +52,7 @@ class WooCommerce_Product_Generator {
 	private static $default_titles = '';
 	private static $default_contents = '';
 	private static $default_categories = '';
+	private static $default_attributes = '';
 
 	/**
 	 * Initialize hooks.
@@ -290,7 +291,7 @@ class WooCommerce_Product_Generator {
 		for ( $i = 0; $i < $c_max ; $i++ ) {
 			$terms[] = $cats[rand( 0, $c_n - 1 )];
 		}
-		
+
 		foreach( $terms as $term ){
 			if ( false === $term_obj = get_term_by( 'slug', $term, 'product_cat', ARRAY_A ) ) {
 				$term_obj = wp_insert_term( $term, 'product_cat' );
@@ -310,13 +311,64 @@ class WooCommerce_Product_Generator {
 		for ( $i = 0; $i < $t_max ; $i++ ) {
 			$tags[] = preg_replace( "/[^a-zA-Z0-9 ]/", '', $potential[rand( 0, $n-1 )] );
 		}
-		
+
 		foreach( $tags as $tag ){
 			if ( false === $tag_obj = get_term_by( 'slug', $tag, 'product_tag', ARRAY_A ) ) {
 				$tag_obj = wp_insert_term( $tag, 'product_tag' );
 			}
 			if ( ! is_wp_error( $tag_obj ) ) {
 				$tag_ids[] = $tag_obj['term_id'];
+			}
+		}
+
+		// add attributes
+		$attributes = array();
+		$attribute_defs = explode( "\n", self::get_default_attributes() );
+		foreach ( $attribute_defs as $attribute_def ) {
+			$attribute_terms = array();
+			$attribute = explode( "|", $attribute_def );
+			$attribute_name = trim( $attribute[0] );
+			if ( strlen( $attribute_name ) > 0 ) {
+				if ( isset( $attribute[1] ) ) {
+					$maybe_attribute_terms = explode( ',', $attribute[1] );
+					foreach ( $maybe_attribute_terms as $maybe_attribute_term ) {
+						$maybe_attribute_term = trim( $maybe_attribute_term );
+						if ( strlen( $maybe_attribute_term ) > 0 ) {
+							if ( !in_array( $maybe_attribute_term, $attribute_terms ) ) {
+								$attribute_terms[] = $maybe_attribute_term;
+							}
+						}
+					}
+				}
+				if ( count( $attribute_terms ) > 0 ) {
+					$n_attributes = rand( 0, count( $attribute_terms ) );
+					if ( $n_attributes > 0 ) {
+						shuffle( $attribute_terms );
+						$attribute_terms = array_slice( $attribute_terms, 0, $n_attributes );
+					}
+				}
+
+				if ( count( $attribute_terms ) > 0 ) {
+					$attribute_taxonomy_id = wc_attribute_taxonomy_id_by_name( $attribute_name );
+					if ( $attribute_taxonomy_id === 0 ) {
+						$attribute_taxonomy_id = wc_create_attribute( array(
+							'name' => $attribute_name
+						) );
+					}
+
+					if ( is_numeric( $attribute_taxonomy_id ) && $attribute_taxonomy_id > 0 ) {
+						$taxonomy_name = wc_attribute_taxonomy_name_by_id( $attribute_taxonomy_id );
+						if ( !empty( $taxonomy_name ) ) {
+							$attribute = new WC_Product_Attribute();
+							$attribute->set_id( $attribute_taxonomy_id );
+							$attribute->set_name( $taxonomy_name );
+							$attribute->set_options( $attribute_terms );
+							$attribute->set_visible( true );
+							$attribute->set_variation( true );
+							$attributes[] = $attribute;
+						}
+					}
+				}
 			}
 		}
 
@@ -358,10 +410,12 @@ class WooCommerce_Product_Generator {
 			'status' => 'publish',
 			'catalog_visibility' => 'visible',
 			'image_id' => $attachment_id
-
 		);
 
 		$product->set_props( $props );
+		if ( count( $attributes ) > 0 ) {
+			$product->set_attributes( $attributes );
+		}
 		$product->save();
 	}
 
@@ -580,6 +634,22 @@ class WooCommerce_Product_Generator {
 			}
 		}
 		return self::$default_categories;
+	}
+
+	/**
+	 * Get default attributes from file.
+	 *
+	 * @return string
+	 * @since 2.0.0
+	 */
+	private static function get_default_attributes() {
+		if ( ! self::$default_attributes ) {
+			$content = file_get_contents( plugin_dir_path( __FILE__ ) . 'dummy-content/dummy-attributes.txt' );
+			if( $content !== false ) {
+				self::$default_attributes = $content;
+			}
+		}
+		return self::$default_attributes;
 	}
 
 }

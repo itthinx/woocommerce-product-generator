@@ -1,6 +1,7 @@
 == Woocommerce Product Generator by itthinx - changelog.txt ==
 
 = 2.0.0 =
+* Added global product attribute generation and randomized relation to products generated.
 * PHP 8.x compatibility, fixed instances of deprecated implicit conversion from float on image generation.
 
 = 1.2.0 =
