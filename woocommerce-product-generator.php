@@ -278,8 +278,8 @@ class WooCommerce_Product_Generator {
 		$content = self::get_content();
 		$excerpt = self::get_excerpt( 3, $content );
 
-		// random choice of simple or variable product generated, 80% chance of variable product
-		$is_variable = ( rand( 1, 100 ) >= 20 );
+		// random choice of simple or variable product generated, 50% chance of variable product
+		$is_variable = ( rand( 1, 100 ) >= 50 ); // @todo make configurable
 		if ( $is_variable ) {
 			$product = new WC_Product_Variable();
 		} else {
@@ -366,10 +366,16 @@ class WooCommerce_Product_Generator {
 					if ( is_numeric( $attribute_taxonomy_id ) && $attribute_taxonomy_id > 0 ) {
 						$taxonomy_name = wc_attribute_taxonomy_name_by_id( $attribute_taxonomy_id );
 						if ( !empty( $taxonomy_name ) ) {
+							$use_attribute_terms = $attribute_terms;
+							// use only term per attribute one for simple products
+							if ( !$is_variable ) {
+								shuffle( $use_attribute_terms );
+								$use_attribute_terms = array_slice( $use_attribute_terms, 0, 1 );
+							}
 							$attribute = new WC_Product_Attribute();
 							$attribute->set_id( $attribute_taxonomy_id );
 							$attribute->set_name( $taxonomy_name );
-							$attribute->set_options( $attribute_terms );
+							$attribute->set_options( $use_attribute_terms );
 							$attribute->set_visible( true );
 							$attribute->set_variation( true );
 							$attributes[] = $attribute;
@@ -419,8 +425,8 @@ class WooCommerce_Product_Generator {
 			'status'             => 'publish',
 			'catalog_visibility' => 'visible',
 			'image_id'           => $attachment_id
+			// 'stock_status'       => 'instock', // @todo random 'outofstock', 'onbackorder'
 			// @todo featured
-			// @todo stock status
 			// @todo on sale
 		);
 
@@ -442,7 +448,7 @@ class WooCommerce_Product_Generator {
 				$pick = array();
 				foreach ( $variation_attributes as $taxonomy_name => $terms ) {
 					$n = rand( 0, count( $terms ) - 1 );
-					$pick[$taxonomy_name] = $terms[$n];
+					$pick[$taxonomy_name] = sanitize_title( $terms[$n] ); // MUST use the slug, thus applying sanitize_title()
 				}
 				$hash = md5( json_encode( $pick ) );
 				if ( !key_exists( $hash, $combos ) ) {
