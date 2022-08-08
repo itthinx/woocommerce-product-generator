@@ -1,5 +1,8 @@
 == Woocommerce Product Generator by itthinx - changelog.txt ==
 
+= 2.0.0 =
+* PHP 8.x compatibility, fixed instances of deprecated implicit conversion from float on image generation.
+
 = 1.2.0 =
 * WordPress 5.7 compatible.
 * WooCommerce 5.1 compatible.

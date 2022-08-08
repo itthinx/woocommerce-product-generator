@@ -491,11 +491,11 @@ class WooCommerce_Product_Generator {
 				$color = imagecolorallocate( $image, $red, $green, $blue );
 				imagefilledrectangle(
 					$image,
-					$x - $w / 2,
-					$y - $h / 2,
-					$x + $w / 2,
-					$y + $h / 2,
-					$color
+					intval( $x - $w / 2 ),
+					intval( $y - $h / 2 ),
+					intval( $x + $w / 2 ),
+					intval( $y + $h / 2 ),
+					intval( $color )
 				);
 			}
 
