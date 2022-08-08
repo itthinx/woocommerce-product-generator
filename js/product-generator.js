@@ -39,12 +39,12 @@ ixprogen.generate = function() {
 		$blinker = jQuery( "#product-generator-blinker" );
 
 	$blinker.addClass( 'blinker' );
-	$status.html('<p>Generating</p>' );
+	$status.html('<p>' + WC_Product_Generator.generating + '</p>' );
 	if ( !ixprogen.generating ) {
 		ixprogen.generating = true;
 		jQuery.ajax({
 				type : 'POST',
-				url  : ixprogen.url,
+				url  : WC_Product_Generator.ajax_url,
 				data : { "action" : "product_generator", "nonce" : ixprogen.nonce },
 				complete : function() {
 					ixprogen.generating = false;
@@ -52,7 +52,8 @@ ixprogen.generate = function() {
 				},
 				success : function ( data ) {
 					if ( typeof data.total !== "undefined" ) {
-						$update.html( '<p>Total Products: ' + data.total + '</p>' );
+						text = WC_Product_Generator.total.replace( "%d", data.total);
+						$update.html( '<p>' + text + '</p>' );
 						if ( ixprogen.limit !== null ) {
 							if ( data.total >= ixprogen.limit ) {
 								ixprogen.stop();
@@ -65,14 +66,13 @@ ixprogen.generate = function() {
 	}
 };
 
-ixprogen.start = function( url, nonce ) {
+ixprogen.start = function() {
 	if ( !ixprogen.running ) {
 		ixprogen.running = true;
-		ixprogen.url = url;
-		ixprogen.nonce = nonce;
+		ixprogen.nonce = WC_Product_Generator.js_nonce;
 		ixprogen.exec();
 		var $status = jQuery( "#product-generator-status" );
-		$status.html( '<p>Running</p>' );
+		$status.html( '<p>' + WC_Product_Generator.running + '</p>' );
 	}
 };
 
@@ -95,6 +95,21 @@ ixprogen.stop = function() {
 		ixprogen.running = false;
 		clearTimeout( ixprogen.timeout );
 		var $status = jQuery( "#product-generator-status" );
-		$status.html( '<p>Stopped</p>' );
+		$status.html( '<p>' + WC_Product_Generator.stopped + '</p>' );
 	}
 };
+
+jQuery(document).ready(function($){
+	ixprogen.limit = WC_Product_Generator.limit;
+	
+	$("#product-generator-run").on( 'click', function(e){
+		e.stopPropagation();
+		ixprogen.start();
+	});
+
+	$("#product-generator-stop").on( 'click', function(e){
+		e.stopPropagation();
+		ixprogen.stop();
+	});
+
+}); // ready
