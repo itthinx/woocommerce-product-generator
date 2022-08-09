@@ -261,8 +261,26 @@ class WooCommerce_Product_Generator {
 		) );
 	}
 
-	public static function create_product() {
+	/**
+	 * Set the product author to our user.
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param array $data
+	 *
+	 * @return array
+	 */
+	public static function woocommerce_new_product_data( $data ) {
 		$user_id = self::get_user_id();
+		$data['post_author'] = $user_id;
+		return $data;
+	}
+
+	public static function create_product() {
+
+		add_filter( 'woocommerce_new_product_data', array( __CLASS__, 'woocommerce_new_product_data' ) );
+		add_filter( 'woocommerce_new_product_variation_data', array( __CLASS__, 'woocommerce_new_product_data' ) );
+
 		$title = self::get_title();
 		$i = 0;
 		while( ( $i < 99 ) ) {
@@ -278,7 +296,7 @@ class WooCommerce_Product_Generator {
 		$excerpt = self::get_excerpt( 3, $content );
 
 		// random choice of simple or variable product generated, 50% chance of variable product
-		$is_variable = ( rand( 1, 100 ) >= 50 ); // @todo make configurable
+		$is_variable = ( rand( 1, 100 ) >= 50 );
 		if ( $is_variable ) {
 			$product = new WC_Product_Variable();
 		} else {
@@ -559,6 +577,9 @@ class WooCommerce_Product_Generator {
 				}
 			}
 		}
+
+		remove_filter( 'woocommerce_new_product_data', array( __CLASS__, 'woocommerce_new_product_data' ) );
+		remove_filter( 'woocommerce_new_product_variation_data', array( __CLASS__, 'woocommerce_new_product_data' ) );
 	}
 
 	/**

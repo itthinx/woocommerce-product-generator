@@ -13,6 +13,7 @@
 * Added random stock assignment as suggested in [PR#2](https://github.com/itthinx/woocommerce-product-generator/pull/2) by [James Golovich jamesgol](https://github.com/jamesgol).
 * Added a small percentage of products is featured.
 * Added extra variation for a more ample price spread.
+* Fixed product post author assignment to use the plugin's post-generator user.
 
 = 1.2.0 =
 * WordPress 5.7 compatible.
