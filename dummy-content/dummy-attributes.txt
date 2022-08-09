@@ -1,0 +1,2 @@
+Color | red, green, blue, black, white, pink, yellow, mint, orange, brown
+Size | XXS,XS,S,M,L,XL,XXL,XXL
