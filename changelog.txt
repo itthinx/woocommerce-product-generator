@@ -16,6 +16,8 @@
 * Added a small percentage of products is featured.
 * Added extra variation for a more ample price spread.
 * Fixed product post author assignment to use the plugin's post-generator user.
+* Added the categories to the admin section to make them editable.
+* Added the attributes to the admin section, editable.
 
 = 1.2.0 =
 * WordPress 5.7 compatible.

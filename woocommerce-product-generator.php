@@ -176,6 +176,8 @@ class WooCommerce_Product_Generator {
 			$per_run  = !empty( $_POST['per_run'] ) ? intval( trim( $_POST['per_run'] ) ) : self::DEFAULT_PER_RUN;
 			$titles   = !empty( $_POST['titles'] ) ? $_POST['titles'] : '';
 			$contents = !empty( $_POST['contents'] ) ? $_POST['contents'] : '';
+			$categories = !empty( $_POST['categories'] ) ? $_POST['categories'] : '';
+			$attributes = !empty( $_POST['attributes'] ) ? $_POST['attributes'] : '';
 
 			if ( $limit < 0 ) {
 				$limit = self::DEFAULT_LIMIT;
@@ -197,6 +199,41 @@ class WooCommerce_Product_Generator {
 
 			delete_option( 'woocommerce-product-generator-contents' );
 			add_option( 'woocommerce-product-generator-contents', $contents, null, 'no' );
+
+			$categories = explode( "\n", $categories );
+			$categories = array_map( 'trim', $categories );
+			$categories = array_unique( $categories );
+			$categories = implode( "\n", $categories );
+			delete_option( 'woocommerce-product-generator-categories' );
+			add_option( 'woocommerce-product-generator-categories', $categories, null, 'no' );
+
+			$save_attributes = '';
+			$attribute_defs = explode( "\n", $attributes );
+			foreach ( $attribute_defs as $attribute_def ) {
+				$attribute_terms = array();
+				$attribute = explode( "|", $attribute_def );
+				$attribute_name = trim( $attribute[0] );
+				if ( strlen( $attribute_name ) > 0 ) {
+					if ( isset( $attribute[1] ) ) {
+						$maybe_attribute_terms = explode( ',', $attribute[1] );
+						foreach ( $maybe_attribute_terms as $maybe_attribute_term ) {
+							$maybe_attribute_term = trim( $maybe_attribute_term );
+							if ( strlen( $maybe_attribute_term ) > 0 ) {
+								if ( !in_array( $maybe_attribute_term, $attribute_terms ) ) {
+									$attribute_terms[] = $maybe_attribute_term;
+								}
+							}
+						}
+					}
+					if ( count( $attribute_terms ) > 0 ) {
+						$save_attributes .= sprintf( "%s | %s\n", $attribute_name, implode( ', ', $attribute_terms ) );
+					}
+				}
+			}
+			$attributes = $save_attributes;
+			delete_option( 'woocommerce-product-generator-attributes' );
+			add_option( 'woocommerce-product-generator-attributes', $attributes, null, 'no' );
+
 		} else if ( isset( $_POST['action'] ) && ( $_POST['action'] == 'generate' ) && wp_verify_nonce( $_POST['product-generate'], 'admin' ) ) {
 			$max = isset( $_POST['max'] ) ? intval( $_POST['max'] ) : 0;
 			if ( $max > 0 ) {
@@ -216,12 +253,20 @@ class WooCommerce_Product_Generator {
 
 			delete_option( 'woocommerce-product-generator-contents' );
 			add_option( 'woocommerce-product-generator-contents', self::get_default_contents(), null, 'no' );
+
+			delete_option( 'woocommerce-product-generator-categories' );
+			add_option( 'woocommerce-product-generator-categories', self::get_default_categories(), null, 'no' );
+
+			delete_option( 'woocommerce-product-generator-attributes' );
+			add_option( 'woocommerce-product-generator-attributes', self::get_default_attributes(), null, 'no' );
 		}
 
 		$limit    = get_option( 'woocommerce-product-generator-limit', self::DEFAULT_LIMIT );
 		$per_run  = get_option( 'woocommerce-product-generator-per-run', self::DEFAULT_PER_RUN );
 		$titles   = trim( stripslashes( get_option( 'woocommerce-product-generator-titles', self::get_default_titles() ) ) );
 		$contents = trim( stripslashes( get_option( 'woocommerce-product-generator-contents', self::get_default_contents() ) ) );
+		$categories = trim( stripslashes( get_option( 'woocommerce-product-generator-categories', self::get_default_categories() ) ) );
+		$attributes = trim( stripslashes( get_option( 'woocommerce-product-generator-attributes', self::get_default_attributes() ) ) );
 
 		$titles = explode( "\n", $titles );
 		sort( $titles );
@@ -321,7 +366,7 @@ class WooCommerce_Product_Generator {
 		// Add categories
 		//
 		$terms = $term_ids = array();
-		$cats = explode( "\n", self::get_default_categories() );
+		$cats = explode( "\n", self::get_categories() );
 		$c_n = count( $cats );
 		$c_max = rand( 1, 3 );
 		for ( $i = 0; $i < $c_max ; $i++ ) {
@@ -364,7 +409,7 @@ class WooCommerce_Product_Generator {
 		//
 		$variation_attributes = array();
 		$attributes = array();
-		$attribute_defs = explode( "\n", self::get_default_attributes() );
+		$attribute_defs = explode( "\n", self::get_attributes() );
 		foreach ( $attribute_defs as $attribute_def ) {
 			$attribute_terms = array();
 			$attribute = explode( "|", $attribute_def );
@@ -759,6 +804,26 @@ class WooCommerce_Product_Generator {
 	}
 
 	/**
+	 * Get the categories.
+	 *
+	 * @return string
+	 */
+	public static function get_categories() {
+		$categories = trim( stripslashes( get_option( 'woocommerce-product-generator-categories', self::get_default_categories() ) ) );
+		return $categories;
+	}
+
+	/**
+	 * Get the attribute definitions.
+	 *
+	 * @return string
+	 */
+	public static function get_attributes() {
+		$attributes = trim( stripslashes( get_option( 'woocommerce-product-generator-attributes', self::get_default_attributes() ) ) );
+		return $attributes;
+	}
+
+	/**
 	 * Produce an image.
 	 *
 	 * @return string image data
@@ -815,6 +880,7 @@ class WooCommerce_Product_Generator {
 
 	/**
 	 * Returns true if WooCommerce is active.
+	 *
 	 * @return boolean true if WooCommerce is active
 	 */
 	private static function woocommerce_is_active() {
@@ -829,7 +895,9 @@ class WooCommerce_Product_Generator {
 
 	/**
 	 * Get default titles from file.
+	 *
 	 * @return string
+	 *
 	 * @since  1.2.0
 	 */
 	private static function get_default_titles() {
@@ -844,7 +912,9 @@ class WooCommerce_Product_Generator {
 
 	/**
 	 * Get default content from file.
+	 *
 	 * @return string
+	 *
 	 * @since  1.2.0
 	 */
 	private static function get_default_contents() {
@@ -859,7 +929,9 @@ class WooCommerce_Product_Generator {
 
 	/**
 	 * Get default categories from file.
+	 *
 	 * @return string
+	 *
 	 * @since  1.2.0
 	 */
 	private static function get_default_categories() {
@@ -876,6 +948,7 @@ class WooCommerce_Product_Generator {
 	 * Get default attributes from file.
 	 *
 	 * @return string
+	 *
 	 * @since 2.0.0
 	 */
 	private static function get_default_attributes() {

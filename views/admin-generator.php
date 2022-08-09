@@ -58,6 +58,26 @@
 				</label>
 			</p>
 
+			<p>
+				<label>
+				<?php _e( 'Categories', 'woocommerce-product-generator' ); ?>
+				<br/>
+				<textarea name="categories" style="height:10em;width:90%;"><?php echo htmlentities( $categories ); ?></textarea>
+				<br/>
+				<?php echo wp_kses_post( __( 'Provide one category per line', 'woocommerce-product-generator' ) ); ?>
+				</label>
+			</p>
+
+			<p>
+				<label>
+				<?php _e( 'Attributes', 'woocommerce-product-generator' ); ?>
+				<br/>
+				<textarea name="attributes" style="height:10em;width:90%;"><?php echo htmlentities( $attributes ); ?></textarea>
+				<br/>
+				<?php echo wp_kses_post( __( 'Each attribute line must use the format: <code>Name | term1, term2, ...</code>', 'woocommerce-product-generator' ) ); ?>
+				</label>
+			</p>
+
 		<?php wp_nonce_field( 'admin', 'product-generator', true, true ); ?>
 
 		<div class="buttons">

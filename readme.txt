@@ -14,9 +14,7 @@ A sample product generator for WooCommerce.
 
 This plugin is intended to be used as a sample product generator for WooCommerce.
 
-It's purpose is to provide an automated way of creating even very large sets
-of products, useful in providing a test environment for performance benchmarks
-and use case testing.
+It's purpose is to provide an automated way of creating even very large sets of products, useful in providing a test environment for performance benchmarks and use case testing.
 
 == Installation ==
 
@@ -24,7 +22,8 @@ and use case testing.
 
 Log in as an administrator and go to <strong>Plugins > Add New</strong>.
 
-Type <em>WooCommerce Product Generator</em> in the search field and click <em>Search Plugins</em>, locate the <em>WooCommerce Product Generator<em> plugin by <em>itthinx</em> and install it by clicking <em>Install Now</em>.
+Type <em>WooCommerce Product Generator</em> in the search field, locate the <em>WooCommerce Product Generator<em> plugin by <em>itthinx</em> and install it by clicking <em>Install Now</em>.
+
 Now <em>activate</em> the plugin to be able to generate sample products.
 
 = FTP =
