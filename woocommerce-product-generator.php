@@ -410,6 +410,12 @@ class WooCommerce_Product_Generator {
 		$variation_attributes = array();
 		$attributes = array();
 		$attribute_defs = explode( "\n", self::get_attributes() );
+
+		// choose a subset of available attributes
+		$attributes_max = rand( 1, count( $attribute_defs ) );
+		shuffle( $attribute_defs );
+		$attribute_defs = array_splice( $attribute_defs, 0, $attributes_max );
+
 		foreach ( $attribute_defs as $attribute_def ) {
 			$attribute_terms = array();
 			$attribute = explode( "|", $attribute_def );
