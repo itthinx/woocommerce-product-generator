@@ -42,6 +42,8 @@ class WooCommerce_Product_Generator {
 	const MAX_PER_RUN = 100;
 	const DEFAULT_PER_RUN = 10;
 
+	const USE_UNSPLASH = true;
+
 	const IMAGE_WIDTH = 512;
 	const IMAGE_HEIGHT = 512;
 
@@ -174,6 +176,7 @@ class WooCommerce_Product_Generator {
 		if ( isset( $_POST['action'] ) && ( $_POST['action'] == 'save' ) && wp_verify_nonce( $_POST['product-generator'], 'admin' ) ) {
 			$limit    = !empty( $_POST['limit'] ) ? intval( trim( $_POST['limit'] ) ) : self::DEFAULT_LIMIT;
 			$per_run  = !empty( $_POST['per_run'] ) ? intval( trim( $_POST['per_run'] ) ) : self::DEFAULT_PER_RUN;
+			$use_unsplash = !empty( $_POST['use_unsplash'] );
 			$titles   = !empty( $_POST['titles'] ) ? $_POST['titles'] : '';
 			$contents = !empty( $_POST['contents'] ) ? $_POST['contents'] : '';
 			$categories = !empty( $_POST['categories'] ) ? $_POST['categories'] : '';
@@ -193,6 +196,9 @@ class WooCommerce_Product_Generator {
 			}
 			delete_option( 'woocommerce-product-generator-per-run' );
 			add_option( 'woocommerce-product-generator-per-run', $per_run, null, 'no' );
+
+			delete_option( 'woocommerce-product-generator-use-unsplash' );
+			add_option( 'woocommerce-product-generator-use-unsplash', $use_unsplash, null, 'no' );
 
 			delete_option( 'woocommerce-product-generator-titles' );
 			add_option( 'woocommerce-product-generator-title', $titles, null, 'no' );
@@ -248,6 +254,9 @@ class WooCommerce_Product_Generator {
 			delete_option( 'woocommerce-product-generator-per-run' );
 			add_option( 'woocommerce-product-generator-per-run', self::DEFAULT_PER_RUN, null, 'no' );
 
+			delete_option( 'woocommerce-product-generator-use-unsplash' );
+			add_option( 'woocommerce-product-generator-use-unsplash', self::USE_UNSPLASH, null, 'no' );
+
 			delete_option( 'woocommerce-product-generator-titles' );
 			add_option( 'woocommerce-product-generator-title', self::get_default_titles(), null, 'no' );
 
@@ -263,6 +272,7 @@ class WooCommerce_Product_Generator {
 
 		$limit    = get_option( 'woocommerce-product-generator-limit', self::DEFAULT_LIMIT );
 		$per_run  = get_option( 'woocommerce-product-generator-per-run', self::DEFAULT_PER_RUN );
+		$use_unsplash = get_option( 'woocommerce-product-generator-use-unsplash', self::USE_UNSPLASH );
 		$titles   = trim( stripslashes( get_option( 'woocommerce-product-generator-titles', self::get_default_titles() ) ) );
 		$contents = trim( stripslashes( get_option( 'woocommerce-product-generator-contents', self::get_default_contents() ) ) );
 		$categories = trim( stripslashes( get_option( 'woocommerce-product-generator-categories', self::get_default_categories() ) ) );
@@ -475,26 +485,70 @@ class WooCommerce_Product_Generator {
 		//
 		// Product image
 		//
-		$image = self::get_image();
-		$image_name = self::get_image_name();
-		$attachment_id = '';
-		$r = wp_upload_bits( $image_name, null, $image );
-		if ( !empty( $r ) && is_array( $r ) && !empty( $r['file'] ) ) {
-			$filetype = wp_check_filetype( $r['file'] );
-			$attachment_id = wp_insert_attachment(
-				array(
-					'post_title' => $title,
-					'post_mime_type' => $filetype['type'],
-					'post_status' => 'publish',
-				),
-				$r['file'],
-				$product->get_id()
-			);
-			if ( !empty( $attachment_id ) ) {
-				include_once ABSPATH . 'wp-admin/includes/image.php';
-				if ( function_exists( 'wp_generate_attachment_metadata' ) ) {
-					$meta = wp_generate_attachment_metadata( $attachment_id, $r['file'] );
-					wp_update_attachment_metadata( $attachment_id, $meta );
+		$generate_image = true;
+		$use_unsplash = get_option( 'woocommerce-product-generator-use-unsplash', self::USE_UNSPLASH );
+		if ( $use_unsplash ) {
+			$unsplash_success = false;
+			// https://source.unsplash.com/960x960/?what-to-search-for
+			$context = stream_context_create( ['http' => ['ignore_errors' => true]] );
+			$unsplash_image = file_get_contents( sprintf( 'https://source.unsplash.com/960x960/?%s', esc_url( $title ) ), false, $context );
+			if ( isset( $http_response_header[0] ) ) {
+				if (
+					strpos( $http_response_header[0], '200' ) !== false || // OK
+					strpos( $http_response_header[0], '302' ) !== false // Found
+				) {
+					$unsplash_success = true;
+				}
+			}
+			if ( $unsplash_success ) {
+				$image_name = self::get_image_name();
+				$r = wp_upload_bits( $image_name, null, $unsplash_image );
+				if ( !empty( $r ) && is_array( $r ) && !empty( $r['file'] ) ) {
+					$filetype = wp_check_filetype( $r['file'] );
+					$attachment_id = wp_insert_attachment(
+						array(
+							'post_author' => self::get_user_id(),
+							'post_title' => $title,
+							'post_mime_type' => $filetype['type'],
+							'post_status' => 'publish'
+						),
+						$r['file'],
+						$product->get_id()
+					);
+					if ( !empty( $attachment_id ) && !( $attachment_id instanceof WP_Error ) ) {
+						$generate_image = false;
+						include_once ABSPATH . 'wp-admin/includes/image.php';
+						if ( function_exists( 'wp_generate_attachment_metadata' ) ) {
+							$meta = wp_generate_attachment_metadata( $attachment_id, $r['file'] );
+							wp_update_attachment_metadata( $attachment_id, $meta );
+						}
+					}
+				}
+			}
+		}
+		if ( $generate_image ) {
+			$image = self::get_image();
+			$image_name = self::get_image_name();
+			$attachment_id = '';
+			$r = wp_upload_bits( $image_name, null, $image );
+			if ( !empty( $r ) && is_array( $r ) && !empty( $r['file'] ) ) {
+				$filetype = wp_check_filetype( $r['file'] );
+				$attachment_id = wp_insert_attachment(
+					array(
+						'post_author' => self::get_user_id(),
+						'post_title' => $title,
+						'post_mime_type' => $filetype['type'],
+						'post_status' => 'publish',
+					),
+					$r['file'],
+					$product->get_id()
+				);
+				if ( !empty( $attachment_id ) && !( $attachment_id instanceof WP_Error ) ) {
+					include_once ABSPATH . 'wp-admin/includes/image.php';
+					if ( function_exists( 'wp_generate_attachment_metadata' ) ) {
+						$meta = wp_generate_attachment_metadata( $attachment_id, $r['file'] );
+						wp_update_attachment_metadata( $attachment_id, $meta );
+					}
 				}
 			}
 		}
@@ -524,16 +578,22 @@ class WooCommerce_Product_Generator {
 				if ( $sku_i > 1 ) {
 					$maybe_sku .= $sku_i;
 				}
-				$id_taken = wc_get_product_id_by_sku( $maybe_sku );
+				$sku_taken = false;
+				$id_by_sku = wc_get_product_id_by_sku( $maybe_sku );
+				if ( $id_by_sku !== null && is_numeric( $id_by_sku ) ) {
+					if ( intval( $id_by_sku ) > 0 ) {
+						$sku_taken = true;
+					}
+				}
 			} while (
 				$sku_i <= $max_sku_i &&
-				$id_taken !== null &&
-				!empty( $id_taken ) &&
-				$id_taken > 0
+				$sku_taken
 			);
 			// last resort ...
-			if ( $sku_i === $max_sku_i ) {
+			if ( $sku_i >= $max_sku_i ) {
 				$sku .= rand( 0, PHP_INT_MAX );
+			} else {
+				$sku = $maybe_sku;
 			}
 		}
 
@@ -596,7 +656,6 @@ class WooCommerce_Product_Generator {
 			'status'             => 'publish',
 			'catalog_visibility' => 'visible',
 			'image_id'           => $attachment_id,
-			'sku'                => $sku,
 			'featured'           => $is_featured,
 			'stock_status'       => $stock_status,
 			'backorders'         => 'yes'

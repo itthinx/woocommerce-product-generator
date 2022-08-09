@@ -16,8 +16,10 @@
 * Added a small percentage of products is featured.
 * Added extra variation for a more ample price spread.
 * Fixed product post author assignment to use the plugin's post-generator user.
+* Product attachment images are also assigned to the plugin's post-generator user.
 * Added the categories to the admin section to make them editable.
 * Added the attributes to the admin section, editable.
+* Added support for getting images from [Unsplash](https://unsplash.com/) to use as product images, now enabled by default.
 
 = 1.2.0 =
 * WordPress 5.7 compatible.

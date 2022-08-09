@@ -44,6 +44,16 @@
 			</p>
 
 			<p>
+				<label><?php _e( 'Images', 'woocommerce-product-generator' );?>
+				&nbsp;
+				<input type="checkbox" name="use_unsplash" value="1" <?php echo $use_unsplash ? 'checked' : ''; ?> />
+				<?php printf( __( 'Get images from <a href="https://unsplash.com/">Unsplash</a>', 'woocommerce-product-generator' ), self::USE_UNSPLASH ); ?>
+				</label>
+				<br/>
+				<?php esc_html__( 'Product images are generated if this is disabled or can not be obtained.', 'woocommerce-product-generator' ); ?>
+			</p>
+
+			<p>
 				<label><?php _e( 'Titles', 'woocommerce-product-generator' ); ?>
 				<br/>
 				<textarea name="titles" style="height:10em;width:90%;"><?php echo htmlentities( $titles ); ?></textarea>

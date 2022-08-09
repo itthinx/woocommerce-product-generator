@@ -12,9 +12,24 @@ A sample product generator for WooCommerce.
 
 == Description ==
 
-This plugin is intended to be used as a sample product generator for WooCommerce.
+This plugin is intended to be used as a sample product generator for WooCommerce for use on development and testing sites.
 
 It's purpose is to provide an automated way of creating even very large sets of products, useful in providing a test environment for performance benchmarks and use case testing.
+
+The plugin generates products taking into account the following characteristics:
+
+- Product Categories
+- Product Tags
+- Product Attributes
+- SKUs
+- Simple and Variable products with variations based on given attributes
+- Stock management and stock numbers (some products will have these set, others won't)
+- Featured products (a minor subset will be marked as featured)
+- Product images can be obtained from [Unsplash](https://unsplash.com/) or abstract images generated
+
+The plugin provides an administrative section <strong>WooCommerce > Product Generator</strong> where several aspects can be adjusted.
+
+Fork the [WooCommerce Product Generator](https://github.com/itthinx/woocommerce-product-generator) repository to customize the products generated as desired.
 
 == Installation ==
 
