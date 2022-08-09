@@ -276,6 +276,9 @@ class WooCommerce_Product_Generator {
 		return $data;
 	}
 
+	/**
+	 * Takes care of creating a new product.
+	 */
 	public static function create_product() {
 
 		add_filter( 'woocommerce_new_product_data', array( __CLASS__, 'woocommerce_new_product_data' ) );
@@ -295,7 +298,11 @@ class WooCommerce_Product_Generator {
 		$content = self::get_content();
 		$excerpt = self::get_excerpt( 3, $content );
 
-		// random choice of simple or variable product generated, 50% chance of variable product
+		//
+		// Type of product: Simple or Variable
+		//
+		// Note: random choice of simple or variable product generated, 50% chance of variable product
+		//
 		$is_variable = ( rand( 1, 100 ) >= 50 );
 		if ( $is_variable ) {
 			$product = new WC_Product_Variable();
@@ -303,12 +310,16 @@ class WooCommerce_Product_Generator {
 			$product = new WC_Product_Simple();
 		}
 
-		// price
-		$price = floatval( rand( 1, 10000 ) ) / 100.0;
+		//
+		// Price
+		//
+		$price = round( floatval( rand( 1, 10000 ) ) / 100.0, 2 );
 		$price += -log( rand() / getrandmax() ) * cos( rand() / getrandmax() ) * $price / 10;
-		$price = wc_format_decimal( $price );
+		$price = wc_format_decimal( $price, '' );
 
-		// add categories
+		//
+		// Add categories
+		//
 		$terms = $term_ids = array();
 		$cats = explode( "\n", self::get_default_categories() );
 		$c_n = count( $cats );
@@ -326,7 +337,9 @@ class WooCommerce_Product_Generator {
 			}
 		}
 
-		// add tags
+		//
+		// Add tags
+		//
 		$tag_ids = array();
 		$tags = explode( " ", $title );
 		$tags[] = 'progen';
@@ -346,7 +359,9 @@ class WooCommerce_Product_Generator {
 			}
 		}
 
-		// add attributes
+		//
+		// Add attributes
+		//
 		$variation_attributes = array();
 		$attributes = array();
 		$attribute_defs = explode( "\n", self::get_default_attributes() );
@@ -406,7 +421,9 @@ class WooCommerce_Product_Generator {
 			}
 		}
 
-		// product image
+		//
+		// Product image
+		//
 		$image = self::get_image();
 		$image_name = self::get_image_name();
 		$attachment_id = '';
@@ -431,8 +448,14 @@ class WooCommerce_Product_Generator {
 			}
 		}
 
+		//
+		// SKU
+		//
+
+		// This class will do the SKUs if present
 		$has_sku_generator = class_exists( 'WC_SKU_Generator' ) && method_exists( 'WC_SKU_Generator', 'maybe_save_sku' );
 
+		// Generate our SKU
 		if ( !$has_sku_generator ) {
 			$sku = '';
 			$sku_parts = explode( ' ', $title );
@@ -466,7 +489,8 @@ class WooCommerce_Product_Generator {
 		//
 		// Featured?
 		//
-		// don't include product_variation as post_type here as we only count simple and variable base products
+		// Note: don't include product_variation as post_type here as we only count simple and variable base products
+		//
 		$published_product_ids = wc_get_products( array(
 			'post_type' => 'product',
 			'status' => 'publish',
@@ -481,10 +505,32 @@ class WooCommerce_Product_Generator {
 		// On sale?
 		//
 		// 10% are on sale
+		//
 		$sale_price = null;
 		$is_on_sale = ( rand( 0, $products_count) >= ceil( 0.090 * $products_count ) );
 		if ( $is_on_sale ) {
 			$sale_price = round( rand( 75, 90 ) * $price / 100, 2 );
+			$sale_price = wc_format_decimal( $sale_price, '' );
+		}
+
+		//
+		// Stock?
+		//
+		// 30% are out of stock or on backorder
+		$stock_status = 'instock';
+		if ( rand( 1, 100 ) >= 70 ) {
+			if ( rand( 1, 100 ) >= 50 ) {
+				$stock_status = 'outofstock';
+			} else {
+				$stock_status = 'onbackorder';
+			}
+		}
+		$product->set_stock_status( $stock_status );
+		// 50% have explicit stock management set for the product
+		$stock = null;
+		$manage_stock = ( rand( 1, 100 ) >= 50 );
+		if ( $manage_stock ) {
+			$stock = abs( intval( -log( rand() / getrandmax() ) * cos( rand() / getrandmax() ) * 0.1 * cos( exp( rand() / getrandmax() ) ) * 10000 ) );
 		}
 
 		$props = array(
@@ -500,9 +546,9 @@ class WooCommerce_Product_Generator {
 			'catalog_visibility' => 'visible',
 			'image_id'           => $attachment_id,
 			'sku'                => $sku,
-			'featured'           => $is_featured
-			// 'stock_status'       => 'instock', // @todo random 'outofstock', 'onbackorder'
-			// @todo on sale
+			'featured'           => $is_featured,
+			'stock_status'       => $stock_status,
+			'backorders'         => 'yes'
 		);
 
 		$product->set_props( $props );
@@ -516,6 +562,15 @@ class WooCommerce_Product_Generator {
 
 		if ( $sale_price !== null ) {
 			$product->set_sale_price( $sale_price );
+		}
+
+		if ( $manage_stock && $stock !== null ) {
+			if ( !$is_variable ) {
+				$product->set_manage_stock( true );
+				$product->set_stock_quantity( $stock );
+			} else {
+				$product->set_manage_stock( false );
+			}
 		}
 
 		$product->save();
@@ -552,20 +607,38 @@ class WooCommerce_Product_Generator {
 					$variation->set_parent_id( $product->get_id() );
 					$variation->set_attributes( $combo );
 					$variation_price = round( $price * ( 1 + rand( -25, 25 ) / 100 ), 2 );
+					$variation_price = wc_format_decimal( $variation_price, '' );
 					$variation->set_price( $variation_price );
 					$variation->set_regular_price( $variation_price );
 					if ( !$has_sku_generator ) {
 						$variation->set_sku( $sku . '-' . $i );
 					}
-					// @todo stock status
 					// if the product has a chance of being on sale, allow for 50% of variations to be on sale
 					if ( $is_on_sale ) {
 						$is_on_sale = ( rand( 0, $products_count) >= ceil( 0.50 * $products_count ) );
 						if ( $is_on_sale ) {
 							$variation_sale_price = round( rand( 75, 90 ) * $variation_price / 100, 2 );
+							$variation_sale_price = wc_format_decimal( $variation_sale_price, '' );
 							$variation->set_sale_price( $variation_sale_price );
 						}
 					}
+					// stock of this variation
+					// 30% are out of stock or on backorder
+					$stock_status = 'instock';
+					if ( rand( 1, 100 ) >= 70 ) {
+						if ( rand( 1, 100 ) >= 50 ) {
+							$stock_status = 'outofstock';
+						} else {
+							$stock_status = 'onbackorder';
+						}
+					}
+					$variation->set_stock_status( $stock_status );
+					if ( $manage_stock ) { // from the parent
+						$stock = abs( intval( -log( rand() / getrandmax() ) * cos( rand() / getrandmax() ) * 0.1 * cos( exp( rand() / getrandmax() ) ) * 10000 ) );
+						$variation->set_manage_stock( true );
+						$variation->set_stock_quantity( $stock );
+					}
+
 					$variation->save();
 					$i++;
 
@@ -815,22 +888,5 @@ class WooCommerce_Product_Generator {
 		return self::$default_attributes;
 	}
 
-	/**
-	 * Get some Gauss
-	 *
-	 * @param number $min
-	 * @param number $max
-	 * @param number $sd
-	 *
-	 * @return number
-	 */
-	private static function gauss( $min, $max, $sd = 1 ) {
-		$r1 = rand() / getrandmax();
-		$r2 = rand() / getrandmax();
-		$g = sqrt( -2 * log( $r1 ) ) * cos( 2 * M_PI * $r2 );
-		$m = ( $min + $max ) / 2;
-		$r = $g * $sd + $m;
-		return $r;
-	}
 }
 add_action( 'woocommerce_loaded', array( 'WooCommerce_Product_Generator', 'init' ) );
