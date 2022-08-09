@@ -21,16 +21,16 @@
  * Plugin Name: WooCommerce Product Generator
  * Plugin URI: http://www.itthinx.com/
  * Description: A sample product generator for WooCommerce.
- * Version: 1.2.0
+ * Version: 2.0.0
  * Author: itthinx
  * Author URI: http://www.itthinx.com
  * Donate-Link: http://www.itthinx.com
  * License: GPLv3
- * WC requires at least: 3.0
- * WC tested up to: 5.1
+ * WC requires at least: 5.8
+ * WC tested up to: 6.8
  */
 
-define( 'WOOPROGEN_PLUGIN_VERSION', '1.2.0' );
+define( 'WOOPROGEN_PLUGIN_VERSION', '2.0.0' );
 define( 'WOOPROGEN_PLUGIN_DOMAIN', 'woocommerce-product-generator' );
 define( 'WOOPROGEN_PLUGIN_URL', WP_PLUGIN_URL . '/woocommerce-product-generator' );
 
@@ -47,7 +47,7 @@ class WooCommerce_Product_Generator {
 
 	const DEFAULT_LIMIT = 10000;
 
-	const REQUIRED_WOO = '3.0.0';
+	const REQUIRED_WOO = '5.8';
 
 	private static $default_titles = '';
 	private static $default_contents = '';
@@ -287,7 +287,9 @@ class WooCommerce_Product_Generator {
 		}
 
 		// price
-		$price = wc_format_decimal( floatval( rand( 1, 10000 ) ) / 100.0 );
+		$price = floatval( rand( 1, 10000 ) ) / 100.0;
+		$price += -log( rand() / getrandmax() ) * cos( rand() / getrandmax() ) * $price / 10;
+		$price = wc_format_decimal( $price );
 
 		// add categories
 		$terms = $term_ids = array();
@@ -410,7 +412,62 @@ class WooCommerce_Product_Generator {
 					wp_update_attachment_metadata( $attachment_id, $meta );
 				}
 			}
-	
+		}
+
+		$has_sku_generator = class_exists( 'WC_SKU_Generator' ) && method_exists( 'WC_SKU_Generator', 'maybe_save_sku' );
+
+		if ( !$has_sku_generator ) {
+			$sku = '';
+			$sku_parts = explode( ' ', $title );
+			foreach ( $sku_parts as $sku_part ) {
+				$sku_part = substr( $sku_part, 0, min( strlen( $sku_part ), 2 ) );
+				$sku_part = strtoupper( $sku_part );
+				$sku .= $sku_part;
+			}
+
+			$max_sku_i = 10000;
+			$sku_i = 0;
+			do {
+				$sku_i++;
+				$maybe_sku = $sku;
+				if ( $sku_i > 1 ) {
+					$maybe_sku .= $sku_i;
+				}
+				$id_taken = wc_get_product_id_by_sku( $maybe_sku );
+			} while (
+				$sku_i <= $max_sku_i &&
+				$id_taken !== null &&
+				!empty( $id_taken ) &&
+				$id_taken > 0
+			);
+			// last resort ...
+			if ( $sku_i === $max_sku_i ) {
+				$sku .= rand( 0, PHP_INT_MAX );
+			}
+		}
+
+		//
+		// Featured?
+		//
+		// don't include product_variation as post_type here as we only count simple and variable base products
+		$published_product_ids = wc_get_products( array(
+			'post_type' => 'product',
+			'status' => 'publish',
+			'return' => 'ids',
+			'limit' => -1
+		) );
+		$products_count = count( $published_product_ids );
+		// 1% featured
+		$is_featured = ( rand( 0, $products_count) >= ceil( 0.99 * $products_count ) );
+
+		//
+		// On sale?
+		//
+		// 10% are on sale
+		$sale_price = null;
+		$is_on_sale = ( rand( 0, $products_count) >= ceil( 0.090 * $products_count ) );
+		if ( $is_on_sale ) {
+			$sale_price = round( rand( 75, 90 ) * $price / 100, 2 );
 		}
 
 		$props = array(
@@ -424,9 +481,10 @@ class WooCommerce_Product_Generator {
 			'tag_ids'            => $tag_ids,
 			'status'             => 'publish',
 			'catalog_visibility' => 'visible',
-			'image_id'           => $attachment_id
+			'image_id'           => $attachment_id,
+			'sku'                => $sku,
+			'featured'           => $is_featured
 			// 'stock_status'       => 'instock', // @todo random 'outofstock', 'onbackorder'
-			// @todo featured
 			// @todo on sale
 		);
 
@@ -434,7 +492,22 @@ class WooCommerce_Product_Generator {
 		if ( count( $attributes ) > 0 ) {
 			$product->set_attributes( $attributes );
 		}
+
+		if ( !$has_sku_generator ) {
+			$product->set_sku( $sku );
+		}
+
+		if ( $sale_price !== null ) {
+			$product->set_sale_price( $sale_price );
+		}
+
 		$product->save();
+
+		if ( $has_sku_generator ) {
+			$sku_generator = new WC_SKU_Generator();
+			$sku_generator->maybe_save_sku( $product->get_id() );
+			unset( $sku_generator );
+		}
 
 		// variations
 		if ( $is_variable ) {
@@ -456,16 +529,34 @@ class WooCommerce_Product_Generator {
 				}
 			}
 			if ( count( $combos ) > 0 ) {
+				$i = 1;
 				foreach ( $combos as $combo ) {
 					$variation = new WC_Product_Variation();
 					$variation->set_parent_id( $product->get_id() );
 					$variation->set_attributes( $combo );
-					$variation_price = $price * ( 1 + rand( -25, 25 ) / 100 );
+					$variation_price = round( $price * ( 1 + rand( -25, 25 ) / 100 ), 2 );
 					$variation->set_price( $variation_price );
 					$variation->set_regular_price( $variation_price );
+					if ( !$has_sku_generator ) {
+						$variation->set_sku( $sku . '-' . $i );
+					}
 					// @todo stock status
-					// @todo on sale
+					// if the product has a chance of being on sale, allow for 50% of variations to be on sale
+					if ( $is_on_sale ) {
+						$is_on_sale = ( rand( 0, $products_count) >= ceil( 0.50 * $products_count ) );
+						if ( $is_on_sale ) {
+							$variation_sale_price = round( rand( 75, 90 ) * $variation_price / 100, 2 );
+							$variation->set_sale_price( $variation_sale_price );
+						}
+					}
 					$variation->save();
+					$i++;
+
+					if ( $has_sku_generator ) {
+						$sku_generator = new WC_SKU_Generator();
+						$sku_generator->maybe_save_sku( $variation->get_id() );
+						unset( $sku_generator );
+					}
 				}
 			}
 		}
@@ -704,5 +795,22 @@ class WooCommerce_Product_Generator {
 		return self::$default_attributes;
 	}
 
+	/**
+	 * Get some Gauss
+	 *
+	 * @param number $min
+	 * @param number $max
+	 * @param number $sd
+	 *
+	 * @return number
+	 */
+	private static function gauss( $min, $max, $sd = 1 ) {
+		$r1 = rand() / getrandmax();
+		$r2 = rand() / getrandmax();
+		$g = sqrt( -2 * log( $r1 ) ) * cos( 2 * M_PI * $r2 );
+		$m = ( $min + $max ) / 2;
+		$r = $g * $sd + $m;
+		return $r;
+	}
 }
 add_action( 'woocommerce_loaded', array( 'WooCommerce_Product_Generator', 'init' ) );

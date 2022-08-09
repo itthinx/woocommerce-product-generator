@@ -1,8 +1,18 @@
 == Woocommerce Product Generator by itthinx - changelog.txt ==
 
 = 2.0.0 =
+* Requires WooCommerce 5.8.
+* WooCommerce 6.8 compatible.
+* Requires WordPress 5.5.
+* WordPress 6.0 compatible.
+* Incorporates restructuring and support for CRUD from [PR#3](https://github.com/itthinx/woocommerce-product-generator/pull/3) by [Kathy helgatheviking](https://github.com/helgatheviking).
 * Added global product attribute generation and randomized relation to products generated.
 * PHP 8.x compatibility, fixed instances of deprecated implicit conversion from float on image generation.
+* Added SKU generation.
+* Added support for SKU generation via a generator suggested in [PR#4](https://github.com/itthinx/woocommerce-product-generator/pull/4) by [Akshaya Rane akshaya-rane](https://github.com/akshaya-rane).
+* Added random stock assignment as suggested in [PR#2](https://github.com/itthinx/woocommerce-product-generator/pull/2) by [James Golovich jamesgol](https://github.com/jamesgol).
+* Added a small percentage of products is featured.
+* Added extra variation for a more ample price spread.
 
 = 1.2.0 =
 * WordPress 5.7 compatible.

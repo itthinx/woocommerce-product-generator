@@ -2,14 +2,13 @@
 Contributors: itthinx
 Donate link: http://www.itthinx.com/plugins/woocommerce-product-generator/
 Tags: automatic, benchmark, example, generator, performance, product, products, sample, test, tester, testing, test-tool, woocommerce
-Requires at least: 4.0
-Tested up to: 5.7
-Stable tag: 1.2.0
+Requires at least: 5.5
+Requires PHP: 5.6.0
+Tested up to: 6.0
+Stable tag: 2.0.0
 License: GPLv3
-WC requires at least: 3.0.0
-WC tested up to: 3.3.1
 
-A sample product generator for WooCommerce. Requires WooCommerce 3.0+.
+A sample product generator for WooCommerce.
 
 == Description ==
 
@@ -42,35 +41,8 @@ You can install the plugin via FTP, see [Manual Plugin Installation](http://code
 
 == Changelog ==
 
-= 1.2.0 =
-* Switch to WooCommerce CRUD. Requires WooCommerce 3.0+.
-* Fix prices.
-
-= 1.1.1 =
-* Fixed the excerpt creation and avoiding duplicate lines in it.
-
-= 1.1.0 =
-* Creating excerpts, too.
-
-= 1.0.3 =
-* Tested with WordPress 4.4.
-* Tested with WooCommerce 2.4.10.
-* Fixed missing product meta _regular_price.
-
-= 1.0.2 =
-* Tested with WordPress 4.3.
-* Fixed hardcoded database table reference.
-* Added a placeholder image used when GD is missing.
-
-= 1.0.1 =
-* Tested with WordPress 4.1.1 and WooCommerce 2.3.6.
-* WordPress-compliant readme.txt added.
-* Added an admin section container.
-
-= 1.0.0 =
-* Initial release.
+[Changelog.txt](https://github.com/itthinx/woocommerce-product-generator/blob/master/changelog.txt)
 
 == Upgrade Notice ==
 
-= 1.1.1 =
-* With this release, product short descriptions or excerpts are also created.
+Tested with the latest versions of WordPress and WooCommerce at the time of the release.
