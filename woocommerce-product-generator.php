@@ -102,7 +102,6 @@ class WooCommerce_Product_Generator {
 	/*  Admin                                                                     */
 	/*-----------------------------------------------------------------------------------*/
 
-
 	/**
 	 * Add the Generator menu item.
 	 */
@@ -117,7 +116,7 @@ class WooCommerce_Product_Generator {
 		);
 		add_action( 'load-' . $page, array( __CLASS__, 'load' ) );
 	}
-	
+
 	public static function load() {
 		$suffix = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 		wp_enqueue_script( 'product-generator', plugins_url( 'js/product-generator' . $suffix . '.js', __FILE__ ), array( 'jquery' ), WOOPROGEN_PLUGIN_VERSION, true );
@@ -149,7 +148,7 @@ class WooCommerce_Product_Generator {
 
 	/**
 	 * AJAX request handler.
-	 * 
+	 *
 	 * If a valid product generator request is recognized,
 	 * it runs a generation cycle and then produces the JSON-encoded response
 	 * containing the current number of published products held in the 'total'
@@ -251,7 +250,7 @@ class WooCommerce_Product_Generator {
 
 	/**
 	 * Returns the total number of published products.
-	 * 
+	 *
 	 * @return int
 	 */
 	public static function get_product_count() {
@@ -263,7 +262,7 @@ class WooCommerce_Product_Generator {
 	}
 
 	public static function create_product() {
-		$user_id = self::get_user_id(); 
+		$user_id = self::get_user_id();
 		$title = self::get_title();
 		$i = 0;
 		while( ( $i < 99 ) ) {
@@ -566,7 +565,7 @@ class WooCommerce_Product_Generator {
 	 * Returns the user ID of the product-generator user which is used as the
 	 * author of products generated. The user is created here if it doesn't
 	 * exist yet, with role Shop Manager.
-	 * 
+	 *
 	 * @return int product-generator user ID
 	 */
 	public static function get_user_id() {
@@ -598,11 +597,11 @@ class WooCommerce_Product_Generator {
 			}
 		}
 		return $user_id;
-	} 
+	}
 
 	/**
 	 * Produce a title.
-	 * 
+	 *
 	 * @param int $n_words
 	 * @return string
 	 */
@@ -648,7 +647,7 @@ class WooCommerce_Product_Generator {
 
 	/**
 	 * Produce content.
-	 * 
+	 *
 	 * @param int $n_lines
 	 * @return string
 	 */
@@ -667,7 +666,7 @@ class WooCommerce_Product_Generator {
 
 	/**
 	 * Produce an image.
-	 * 
+	 *
 	 * @return string image data
 	 */
 	public static function get_image() {
@@ -731,7 +730,7 @@ class WooCommerce_Product_Generator {
 			$active_sitewide_plugins = array_keys( $active_sitewide_plugins );
 			$active_plugins = array_merge( $active_plugins, $active_sitewide_plugins );
 		}
-		return in_array( 'woocommerce/woocommerce.php', $active_plugins ); 
+		return in_array( 'woocommerce/woocommerce.php', $active_plugins );
 	}
 
 	/**
