@@ -1,5 +1,5 @@
 === WooCommerce Product Generator ===
-Contributors: itthinx
+Contributors: itthinx, proaktion, helgatheviking, jamesgol, akshayar
 Donate link: http://www.itthinx.com/plugins/woocommerce-product-generator/
 Tags: automatic, benchmark, example, generator, performance, product, products, sample, test, tester, testing, test-tool, woocommerce
 Requires at least: 5.5
