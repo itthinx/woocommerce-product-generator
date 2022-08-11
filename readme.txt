@@ -33,6 +33,8 @@ During the <em>Continuous AJAX Run</em>, the cumulative product generation stats
 
 The product generation stats and performance are also logged to the site's debug.log. To disable, add this to your site's wp-config.php: <code>define( 'WPG_LOG', false );</code>
 
+With the stats provided, this plugin also provides an easy way to benchmark a site: providing an insight into the site's performance measured by products generated per second.
+
 Fork the [WooCommerce Product Generator](https://github.com/itthinx/woocommerce-product-generator) repository to customize the products generated as desired.
 
 == Installation ==
