@@ -136,7 +136,6 @@
 				<input type="hidden" name="action" value="generate" />
 			</div>
 
-		
 		</form>
 	</div>
 

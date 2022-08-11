@@ -8,6 +8,7 @@
 * Added product generation stats and performance are logged to the debug.log; the WPG_LOG constant can be used to turn that off by setting it to false in the wp-config.php.
 * Fixed generator JS not aware of updated limit directly after saving settings.
 * Fixed missing output escaping in the admin section.
+* Fixed superfluous and trailing whitespace in code and formatting issues.
 
 = 2.0.0 =
 * Requires WooCommerce 5.8.
