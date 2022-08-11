@@ -34,6 +34,10 @@ define( 'WOOPROGEN_PLUGIN_VERSION', '2.1.0' );
 define( 'WOOPROGEN_PLUGIN_DOMAIN', 'woocommerce-product-generator' );
 define( 'WOOPROGEN_PLUGIN_URL', WP_PLUGIN_URL . '/woocommerce-product-generator' );
 
+if ( !defined( 'WPG_LOG' ) ) {
+	define( 'WPG_LOG', true );
+}
+
 /**
  * Product Generator.
  */
@@ -124,13 +128,21 @@ class WooCommerce_Product_Generator {
 		wp_enqueue_script( 'product-generator', plugins_url( 'js/product-generator' . $suffix . '.js', __FILE__ ), array( 'jquery' ), WOOPROGEN_PLUGIN_VERSION, true );
 
 		$l10n = array(
-			'generating' => __( 'Generating', 'woocommerce-product-generator' ),
-			'total' => __( 'Total Products: %d', 'woocommerce-product-generator' ),
-			'running' => __( 'Running', 'woocommerce-product-generator' ),
-			'stopped' => __( 'Stopped', 'woocommerce-product-generator' ),
-			'ajax_url' => admin_url( 'admin-ajax.php' ),
-			'js_nonce'	=> wp_create_nonce( 'product-generator-js' ),
-			'limit' 	=> get_option( 'woocommerce-product-generator-limit', self::DEFAULT_LIMIT )
+			'generating'       => __( 'Generating', 'woocommerce-product-generator' ),
+			'total'            => __( 'Total Products: %d', 'woocommerce-product-generator' ),
+			'running'          => __( 'Running', 'woocommerce-product-generator' ),
+			'stopped'          => __( 'Stopped', 'woocommerce-product-generator' ),
+			'limit_reached'    => __( 'Limit reached, increase it to generate more products' ),
+			'generation_stats' => __( 'Generation Stats', 'woocommerce-product-generator' ),
+			'stats_sum'        => __( '&#425: %d', 'woocommerce-product-generator' ),
+			'stats_simple'     => __( 'Simple: %d', 'woocommerce-product-generator' ),
+			'stats_variable'   => __( 'Variable: %d', 'woocommerce-product-generator' ),
+			'stats_variations' => __( 'Variations: %d', 'woocommerce-product-generator' ),
+			'stats_time'       => __( 'Time: %s seconds', 'woocommerce-product-generator' ),
+			'stats_pps'        => __( 'Performance: %s Products per Second', 'woocommerce-product-generator' ),
+			'ajax_url'         => admin_url( 'admin-ajax.php' ),
+			'js_nonce'         => wp_create_nonce( 'product-generator-js' ),
+			'limit'            => get_option( 'woocommerce-product-generator-limit', self::DEFAULT_LIMIT )
 		);
 		wp_localize_script( 'product-generator', 'WC_Product_Generator', $l10n );
 
@@ -160,9 +172,9 @@ class WooCommerce_Product_Generator {
 		if ( wp_verify_nonce( $_POST['nonce'], 'product-generator-js' ) ) {
 			// run generator
 			$per_run = get_option( 'woocommerce-product-generator-per-run', self::DEFAULT_PER_RUN );
-			self::run( $per_run );
+			$generated = self::run( $per_run );
 			$n_products = self::get_product_count();
-			$result = array( 'total' => $n_products );
+			$result = array_merge( array( 'total' => $n_products ), $generated );
 			echo json_encode( $result );
 			exit;
 		}
@@ -174,19 +186,24 @@ class WooCommerce_Product_Generator {
 		}
 
 		if ( isset( $_POST['action'] ) && ( $_POST['action'] == 'save' ) && wp_verify_nonce( $_POST['product-generator'], 'admin' ) ) {
-			$limit    = !empty( $_POST['limit'] ) ? intval( trim( $_POST['limit'] ) ) : self::DEFAULT_LIMIT;
-			$per_run  = !empty( $_POST['per_run'] ) ? intval( trim( $_POST['per_run'] ) ) : self::DEFAULT_PER_RUN;
+			$limit        = !empty( $_POST['limit'] ) ? intval( trim( $_POST['limit'] ) ) : self::DEFAULT_LIMIT;
+			$per_run      = !empty( $_POST['per_run'] ) ? intval( trim( $_POST['per_run'] ) ) : self::DEFAULT_PER_RUN;
 			$use_unsplash = !empty( $_POST['use_unsplash'] );
-			$titles   = !empty( $_POST['titles'] ) ? $_POST['titles'] : '';
-			$contents = !empty( $_POST['contents'] ) ? $_POST['contents'] : '';
-			$categories = !empty( $_POST['categories'] ) ? $_POST['categories'] : '';
-			$attributes = !empty( $_POST['attributes'] ) ? $_POST['attributes'] : '';
+			$titles       = !empty( $_POST['titles'] ) ? $_POST['titles'] : '';
+			$contents     = !empty( $_POST['contents'] ) ? $_POST['contents'] : '';
+			$categories   = !empty( $_POST['categories'] ) ? $_POST['categories'] : '';
+			$attributes   = !empty( $_POST['attributes'] ) ? $_POST['attributes'] : '';
 
 			if ( $limit < 0 ) {
 				$limit = self::DEFAULT_LIMIT;
 			}
 			delete_option( 'woocommerce-product-generator-limit' );
 			add_option( 'woocommerce-product-generator-limit', $limit, null, 'no' );
+			// reflect updated limit so script is aware, otherwise it will have the old value
+			wp_add_inline_script(
+				'product-generator',
+				sprintf( 'var ixprogen_updated_limit = %d;', $limit )
+			);
 
 			if ( $per_run < 0 ) {
 				$per_run = self::DEFAULT_PER_RUN;
@@ -243,9 +260,33 @@ class WooCommerce_Product_Generator {
 		} else if ( isset( $_POST['action'] ) && ( $_POST['action'] == 'generate' ) && wp_verify_nonce( $_POST['product-generate'], 'admin' ) ) {
 			$max = isset( $_POST['max'] ) ? intval( $_POST['max'] ) : 0;
 			if ( $max > 0 ) {
+
+				$time_start = function_exists( 'microtime' ) ? microtime( true ) : time();
+				$run_generated = array(
+					'simple' => 0,
+					'variable' => 0,
+					'variation' => 0
+				);
+
 				for ( $i = 1; $i <= $max ; $i++ ) {
-					self::create_product();
+					$generated = self::create_product();
+					$run_generated['simple'] += $generated['simple'];
+					$run_generated['variable'] += $generated['variable'];
+					$run_generated['variation'] += $generated['variation'];
 				}
+
+				$time_stop = function_exists( 'microtime' ) ? microtime( true ) : time();
+				$time = $time_stop - $time_start;
+				self::log(
+					sprintf(
+						'WooCommerce Product Generator run created %1$d simple products, %2$d variable products and %3$d variations in %4$f seconds',
+						$run_generated['simple'],
+						$run_generated['variable'],
+						$run_generated['variation'],
+						$time
+					)
+				);
+
 			}
 		} else if ( isset( $_POST['action'] ) && ( $_POST['action'] == 'reset' ) && wp_verify_nonce( $_POST['product-generator-reset'], 'admin' ) ) {
 			delete_option( 'woocommerce-product-generator-limit' );
@@ -288,8 +329,20 @@ class WooCommerce_Product_Generator {
 
 	/**
 	 * Product generation cycle.
+	 *
+	 * @return array generation stats for the cycle
 	 */
 	public static function run( $n = self::MAX_PER_RUN ) {
+
+		$time_start = function_exists( 'microtime' ) ? microtime( true ) : time();
+
+		$cycle_generated = array(
+			'simple' => 0,
+			'variable' => 0,
+			'variation' => 0,
+			'time' => 0.0
+		);
+
 		$limit = intval( get_option( 'woocommerce-product-generator-limit', self::DEFAULT_LIMIT ) );
 		$n_products = self::get_product_count();
 		if ( $n_products < $limit ) {
@@ -297,9 +350,41 @@ class WooCommerce_Product_Generator {
 			$n = min( $n, self::MAX_PER_RUN );
 			if ( $n > 0 ) {
 				for ( $i = 0; $i < $n; $i++ ) {
-					self::create_product();
+					$generated = self::create_product();
+					$cycle_generated['simple'] += $generated['simple'];
+					$cycle_generated['variable'] += $generated['variable'];
+					$cycle_generated['variation'] += $generated['variation'];
+					$cycle_generated['time'] += $generated['time'];
 				}
 			}
+		}
+
+		$time_stop = function_exists( 'microtime' ) ? microtime( true ) : time();
+		$time = $time_stop - $time_start;
+
+		self::log(
+			sprintf(
+				'WooCommerce Product Generator cycle created %1$d simple products, %2$d variable products and %3$d variations in %4$f seconds',
+				$cycle_generated['simple'],
+				$cycle_generated['variable'],
+				$cycle_generated['variation'],
+				$time
+			)
+		);
+
+		return $cycle_generated;
+	}
+
+	/**
+	 * Log a message.
+	 *
+	 * @param string $s
+	 *
+	 * @since 2.1.0
+	 */
+	public static function log( $s ) {
+		if ( defined( 'WPG_LOG' ) && WPG_LOG ) {
+			error_log( $s );
 		}
 	}
 
@@ -333,8 +418,16 @@ class WooCommerce_Product_Generator {
 
 	/**
 	 * Takes care of creating a new product.
+	 *
+	 * @return array generation stats
 	 */
 	public static function create_product() {
+
+		$time_start = function_exists( 'microtime' ) ? microtime( true ) : time();
+
+		$simple_products_created = 0;
+		$variable_products_created = 0;
+		$variations_created = 0;
 
 		add_filter( 'woocommerce_new_product_data', array( __CLASS__, 'woocommerce_new_product_data' ) );
 		add_filter( 'woocommerce_new_product_variation_data', array( __CLASS__, 'woocommerce_new_product_data' ) );
@@ -685,6 +778,12 @@ class WooCommerce_Product_Generator {
 
 		$product->save();
 
+		if ( $is_variable ) {
+			$variable_products_created++;
+		} else {
+			$simple_products_created++;
+		}
+
 		if ( $has_sku_generator ) {
 			$sku_generator = new WC_SKU_Generator();
 			$sku_generator->maybe_save_sku( $product->get_id() );
@@ -751,6 +850,7 @@ class WooCommerce_Product_Generator {
 
 					$variation->save();
 					$i++;
+					$variations_created++;
 
 					if ( $has_sku_generator ) {
 						$sku_generator = new WC_SKU_Generator();
@@ -763,6 +863,32 @@ class WooCommerce_Product_Generator {
 
 		remove_filter( 'woocommerce_new_product_data', array( __CLASS__, 'woocommerce_new_product_data' ) );
 		remove_filter( 'woocommerce_new_product_variation_data', array( __CLASS__, 'woocommerce_new_product_data' ) );
+
+		$time_stop = function_exists( 'microtime' ) ? microtime( true ) : time();
+		$time = $time_stop - $time_start;
+		if ( $is_variable ) {
+			self::log(
+				sprintf(
+					'WooCommerce Product Generator created 1 variable product with %1$d variations in %2$f seconds',
+					$variations_created,
+					$time
+				)
+			);
+		} else {
+			self::log(
+				sprintf(
+					'WooCommerce Product Generator created 1 simple product in %1$f seconds',
+					$time
+				)
+			);
+		}
+
+		return array(
+			'simple'    => $simple_products_created,
+			'variable'  => $variable_products_created,
+			'variation' => $variations_created,
+			'time'      => $time
+		);
 	}
 
 	/**

@@ -3,6 +3,10 @@
 = 2.1.0 =
 * WordPress 6.0 compatible.
 * WooCommerce 6.8 compatible.
+* Updated the contributors info.
+* Added product generation stats and performance are shown during generation.
+* Added product generation stats and performance are logged to the debug.log; the WPG_LOG constant can be used to turn that off by setting it to false in the wp-config.php.
+* Fixed generator JS not aware of updated limit directly after saving settings.
 
 = 2.0.0 =
 * Requires WooCommerce 5.8.

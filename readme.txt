@@ -29,6 +29,10 @@ The plugin generates products taking into account the following characteristics:
 
 The plugin provides an administrative section <strong>WooCommerce > Product Generator</strong> where several aspects can be adjusted.
 
+During the <em>Continuous AJAX Run</em>, the cumulative product generation stats and performance are shown.
+
+The product generation stats and performance are also logged to the site's debug.log. To disable, add this to your site's wp-config.php: <code>define( 'WPG_LOG', false );</code>
+
 Fork the [WooCommerce Product Generator](https://github.com/itthinx/woocommerce-product-generator) repository to customize the products generated as desired.
 
 == Installation ==
