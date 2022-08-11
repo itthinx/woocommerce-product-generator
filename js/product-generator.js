@@ -146,7 +146,7 @@ ixprogen.stop = function() {
 
 jQuery(document).ready(function($){
 	ixprogen.limit = WC_Product_Generator.limit;
-	if ( typeof ixprogen_updated_limit !== undefined ) {
+	if ( typeof ixprogen_updated_limit !== 'undefined' ) {
 		ixprogen.limit = ixprogen_updated_limit;
 	}
 
