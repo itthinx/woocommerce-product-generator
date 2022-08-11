@@ -1,11 +1,11 @@
 === WooCommerce Product Generator ===
-Contributors: itthinx
+Contributors: itthinx, proaktion, helgatheviking, jamesgol, akshayar
 Donate link: http://www.itthinx.com/plugins/woocommerce-product-generator/
 Tags: automatic, benchmark, example, generator, performance, product, products, sample, test, tester, testing, test-tool, woocommerce
 Requires at least: 5.5
 Requires PHP: 5.6.0
 Tested up to: 6.0
-Stable tag: 2.0.0
+Stable tag: 2.1.0
 License: GPLv3
 
 A sample product generator for WooCommerce.
@@ -28,6 +28,12 @@ The plugin generates products taking into account the following characteristics:
 - Product images can be obtained from [Unsplash](https://unsplash.com/) or abstract images generated
 
 The plugin provides an administrative section <strong>WooCommerce > Product Generator</strong> where several aspects can be adjusted.
+
+During the <em>Continuous AJAX Run</em>, the cumulative product generation stats and performance are shown.
+
+The product generation stats and performance are also logged to the site's debug.log. To disable, add this to your site's wp-config.php: <code>define( 'WPG_LOG', false );</code>
+
+With the stats provided, this plugin also provides an easy way to benchmark a site: providing an insight into the site's performance measured by products generated per second. If you want to measure the performance of your site while generating products, make sure to <strong>disable</strong> the option <em>Get images from Unsplash</em>, as the impact of getting images via the network will be much higher than the product generation itself.
 
 Fork the [WooCommerce Product Generator](https://github.com/itthinx/woocommerce-product-generator) repository to customize the products generated as desired.
 

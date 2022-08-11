@@ -22,7 +22,14 @@ var ixprogen = {
 	running : false,
 	generating : false,
 	timeout : null,
-	limit : null
+	limit : null,
+	gendata : {
+		total : 0,
+		simple : 0,
+		variable : 0,
+		variation : 0,
+		time : 0.0
+	}
 };
 
 /**
@@ -52,13 +59,51 @@ ixprogen.generate = function() {
 				},
 				success : function ( data ) {
 					if ( typeof data.total !== "undefined" ) {
-						text = WC_Product_Generator.total.replace( "%d", data.total);
-						$update.html( '<p>' + text + '</p>' );
+
+						ixprogen.gendata.total = data.total; // not cumulative
+						ixprogen.gendata.simple += data.simple;
+						ixprogen.gendata.variable += data.variable;
+						ixprogen.gendata.variation += data.variation;
+						ixprogen.gendata.time += data.time;
+
+						text = '<div style="margin: 16px 0;">';
+						text += WC_Product_Generator.total.replace( "%d", ixprogen.gendata.total );
+						text += '</div>';
+						text += '<div style="margin: 16px 0;">';
+						text += '<strong>' + WC_Product_Generator.generation_stats + '</strong>';
+						text += '</div>';
+						text += '<div id="ixprogen-stats-container" style="display: grid; grid-template-columns: 10% 10% 10% 10% 15% auto; grid-column-gap: 24px;">';
+						text += '<div>';
+						text += WC_Product_Generator.stats_simple.replace( "%d", ixprogen.gendata.simple );
+						text += '</div>';
+						text += '<div>';
+						text += WC_Product_Generator.stats_variable.replace( "%d", ixprogen.gendata.variable );
+						text += '</div>';
+						text += '<div>';
+						text += WC_Product_Generator.stats_variations.replace( "%d", ixprogen.gendata.variation );
+						text += '</div>';
+						text += '<div>';
+						text += WC_Product_Generator.stats_sum.replace( "%d", ixprogen.gendata.simple + ixprogen.gendata.variable + ixprogen.gendata.variation );
+						text += '</div>';
+						text += '<div>';
+						text += WC_Product_Generator.stats_time.replace( "%s", ixprogen.gendata.time.toFixed(2) );
+						text += '</div>';
+						text += '<div>';
+						var pps = ixprogen.gendata.time > 0.0 ? ( ixprogen.gendata.simple + ixprogen.gendata.variable + ixprogen.gendata.variation ) / ixprogen.gendata.time : 0.0;
+						text += WC_Product_Generator.stats_pps.replace( "%s", pps.toFixed(3) );
+						text += '</div>';
+						text += '</div>';
+
 						if ( ixprogen.limit !== null ) {
 							if ( data.total >= ixprogen.limit ) {
 								ixprogen.stop();
+								text += '<div style="margin: 16px 0;">';
+								text += '<strong>' + WC_Product_Generator.limit_reached + '</strong>';
+								text += '</div>';
 							}
 						}
+
+						$update.html( '<div>' + text + '</div>' );
 					}
 				},
 				dataType : "json"
@@ -101,7 +146,10 @@ ixprogen.stop = function() {
 
 jQuery(document).ready(function($){
 	ixprogen.limit = WC_Product_Generator.limit;
-	
+	if ( typeof ixprogen_updated_limit !== 'undefined' ) {
+		ixprogen.limit = ixprogen_updated_limit;
+	}
+
 	$("#product-generator-run").on( 'click', function(e){
 		e.stopPropagation();
 		ixprogen.start();
