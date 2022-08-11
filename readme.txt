@@ -5,7 +5,7 @@ Tags: automatic, benchmark, example, generator, performance, product, products, 
 Requires at least: 5.5
 Requires PHP: 5.6.0
 Tested up to: 6.0
-Stable tag: 2.0.0
+Stable tag: 2.1.0
 License: GPLv3
 
 A sample product generator for WooCommerce.
