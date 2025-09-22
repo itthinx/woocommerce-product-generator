@@ -1,5 +1,9 @@
 == Woocommerce Product Generator by itthinx - changelog.txt ==
 
+= 3.0.0 =
+* WordPress 6.8 compatible.
+* WooCommerce 10.2 compatible.
+
 = 2.1.0 =
 * WordPress 6.0 compatible.
 * WooCommerce 6.8 compatible.
