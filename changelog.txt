@@ -1,8 +1,11 @@
-== Woocommerce Product Generator by itthinx - changelog.txt ==
+== Product Generator for WooCommerce by itthinx - changelog.txt ==
 
 = 3.0.0 =
 * WordPress 6.8 compatible.
+* Requires at least WordPress 6.5.
 * WooCommerce 10.2 compatible.
+* Name updated to Product Generator for WooCommerce.
+* Update - Updated the translation template.
 
 = 2.1.0 =
 * WordPress 6.0 compatible.

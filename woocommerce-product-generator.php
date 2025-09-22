@@ -2,7 +2,7 @@
 /**
  * woocommerce-product-generator.php
  *
- * Copyright (c) 2014-2022 "kento" Karim Rahimpur www.itthinx.com
+ * Copyright (c) 2014-2025 "kento" Karim Rahimpur www.itthinx.com
  *
  * This code is released under the GNU General Public License.
  * See COPYRIGHT.txt and LICENSE.txt.
@@ -18,13 +18,13 @@
  * @package woocommerce-product-generator
  * @since 1.0.0
  *
- * Plugin Name: WooCommerce Product Generator
- * Plugin URI: http://www.itthinx.com/
+ * Plugin Name: Product Generator for WooCommerce
+ * Plugin URI: https://www.itthinx.com/plugins/woocommerce-product-generator/
  * Description: A sample product generator for WooCommerce.
  * Version: 3.0.0
  * Author: itthinx
- * Author URI: http://www.itthinx.com
- * Donate-Link: http://www.itthinx.com
+ * Author URI: https://www.itthinx.com
+ * Donate-Link: https://www.itthinx.com
  * License: GPLv3
  * WC requires at least: 5.8
  * WC tested up to: 10.2
@@ -33,6 +33,7 @@
 define( 'WOOPROGEN_PLUGIN_VERSION', '3.0.0' );
 define( 'WOOPROGEN_PLUGIN_DOMAIN', 'woocommerce-product-generator' );
 define( 'WOOPROGEN_PLUGIN_URL', WP_PLUGIN_URL . '/woocommerce-product-generator' );
+define( 'WOOPROGEN_PLUGIN_FILE', __FILE__ );
 
 if ( !defined( 'WPG_LOG' ) ) {
 	define( 'WPG_LOG', true );
@@ -61,9 +62,30 @@ class WooCommerce_Product_Generator {
 	private static $default_attributes = '';
 
 	/**
-	 * Initialize hooks.
+	 * Register actions.
+	 *
+	 * @since 3.0.0
 	 */
 	public static function init() {
+		add_action( 'woocommerce_loaded', array( __CLASS__, 'woocommerce_loaded' ) );
+		add_action( 'before_woocommerce_init', array( __CLASS__, 'before_woocommerce_init' ) );
+	}
+
+	/**
+	 * Declare HPOS compatibility
+	 *
+	 * @since 3.0.0
+	 */
+	public static function before_woocommerce_init() {
+		if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
+			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', WOOPROGEN_PLUGIN_FILE, true );
+		}
+	}
+
+	/**
+	 * Initialize hooks.
+	 */
+	public static function woocommerce_loaded() {
 
 		add_action( 'init', array( __CLASS__, 'load_plugin_textdomain' ) );
 
@@ -101,7 +123,7 @@ class WooCommerce_Product_Generator {
 	 * @return string
 	 */
 	public static function min_woo_notice() {
-	    echo '<div class="error"><p>' . sprintf( __( 'WooCommerce Product Generator requires at least WooCommerce %s in order to function. Please upgrade WooCommerce.', 'woocommerce-product-generator' ), self::REQUIRED_WOO ) . '</p></div>';
+	    echo '<div class="error"><p>' . sprintf( __( 'Product Generator for WooCommerce requires at least WooCommerce %s in order to function. Please upgrade WooCommerce.', 'woocommerce-product-generator' ), self::REQUIRED_WOO ) . '</p></div>';
 	}
 
 	/*-----------------------------------------------------------------------------------*/
@@ -279,7 +301,7 @@ class WooCommerce_Product_Generator {
 				$time = $time_stop - $time_start;
 				self::log(
 					sprintf(
-						'WooCommerce Product Generator run created %1$d simple products, %2$d variable products and %3$d variations in %4$f seconds',
+						'Product Generator run created %1$d simple products, %2$d variable products and %3$d variations in %4$f seconds',
 						$run_generated['simple'],
 						$run_generated['variable'],
 						$run_generated['variation'],
@@ -364,7 +386,7 @@ class WooCommerce_Product_Generator {
 
 		self::log(
 			sprintf(
-				'WooCommerce Product Generator cycle created %1$d simple products, %2$d variable products and %3$d variations in %4$f seconds',
+				'Product Generator cycle created %1$d simple products, %2$d variable products and %3$d variations in %4$f seconds',
 				$cycle_generated['simple'],
 				$cycle_generated['variable'],
 				$cycle_generated['variation'],
@@ -869,7 +891,7 @@ class WooCommerce_Product_Generator {
 		if ( $is_variable ) {
 			self::log(
 				sprintf(
-					'WooCommerce Product Generator created 1 variable product with %1$d variations in %2$f seconds',
+					'Product Generator created 1 variable product with %1$d variations in %2$f seconds',
 					$variations_created,
 					$time
 				)
@@ -877,7 +899,7 @@ class WooCommerce_Product_Generator {
 		} else {
 			self::log(
 				sprintf(
-					'WooCommerce Product Generator created 1 simple product in %1$f seconds',
+					'Product Generator created 1 simple product in %1$f seconds',
 					$time
 				)
 			);
@@ -1153,4 +1175,5 @@ class WooCommerce_Product_Generator {
 	}
 
 }
-add_action( 'woocommerce_loaded', array( 'WooCommerce_Product_Generator', 'init' ) );
+
+WooCommerce_Product_Generator::init();
