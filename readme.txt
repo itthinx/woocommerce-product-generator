@@ -12,9 +12,9 @@ A sample product generator for WooCommerce.
 
 == Description ==
 
-This plugin is intended to be used as a sample product generator for WooCommerce for use on development and testing sites.
+This plugin is a sample product generator for WooCommerce, for use on development and testing sites.
 
-It's purpose is to provide an automated way of creating even very large sets of products, useful in providing a test environment for performance benchmarks and use case testing.
+Its purpose is to provide an automated way of creating even very large sets of products, useful in providing a test environment for performance benchmarks and use case testing.
 
 The plugin generates products taking into account the following characteristics:
 
