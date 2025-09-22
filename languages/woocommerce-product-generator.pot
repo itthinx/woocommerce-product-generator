@@ -7,7 +7,7 @@
 msgid   ""
 msgstr  "Project-Id-Version: PACKAGE VERSION\n"
         "Report-Msgid-Bugs-To: \n"
-        "POT-Creation-Date: 2025-09-22 15:30+0200\n"
+        "POT-Creation-Date: 2025-09-22 23:54+0200\n"
         "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
         "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
         "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,28 +25,28 @@ msgstr  ""
 msgid   "Access denied."
 msgstr  ""
 
-#: views/admin-generator.php:85
+#: views/admin-generator.php:96
 msgid   "Attributes"
 msgstr  ""
 
-#: views/admin-generator.php:75
+#: views/admin-generator.php:86
 msgid   "Categories"
 msgstr  ""
 
-#: views/admin-generator.php:67
+#: views/admin-generator.php:78
 msgid   "Contents"
 msgstr  ""
 
-#: views/admin-generator.php:142
+#: views/admin-generator.php:153
 msgid   "Continuous AJAX Run"
 msgstr  ""
 
-#: views/admin-generator.php:89
+#: views/admin-generator.php:100
 msgid   "Each attribute line must use the format: <code>Name | term1, "
         "term2, ...</code>"
 msgstr  ""
 
-#: views/admin-generator.php:127
+#: views/admin-generator.php:138
 msgid   "Generate up to &hellip;"
 msgstr  ""
 
@@ -58,11 +58,12 @@ msgstr  ""
 msgid   "Generation Stats"
 msgstr  ""
 
-#: views/admin-generator.php:50
-msgid   "Get images from <a href=\"https://unsplash.com/\">Unsplash</a>"
+#: views/admin-generator.php:51
+#, php-format
+msgid   "Get images from %s"
 msgstr  ""
 
-#: views/admin-generator.php:55
+#: views/admin-generator.php:66
 msgid   "If you want to measure the performance of your site while generating "
         "products using the logged stats and those provided under "
         "<em>Continuous AJAX Run</em>, make sure to <strong>disable</strong> "
@@ -70,7 +71,7 @@ msgid   "If you want to measure the performance of your site while generating "
         "much higher than the product generation itself."
 msgstr  ""
 
-#: views/admin-generator.php:47
+#: views/admin-generator.php:48
 msgid   "Images"
 msgstr  ""
 
@@ -92,7 +93,7 @@ msgstr  ""
 msgid   "Maximum %d"
 msgstr  ""
 
-#: woocommerce-product-generator.php:945
+#: woocommerce-product-generator.php:994
 #, php-format
 msgid   "Password: %s"
 msgstr  ""
@@ -124,29 +125,29 @@ msgid   "Product generation stats and performance are logged to your site's "
         "config.php</code>."
 msgstr  ""
 
-#: woocommerce-product-generator.php:943
+#: woocommerce-product-generator.php:992
 #, php-format
 msgid   "Product generator user created on %s:"
 msgstr  ""
 
-#: views/admin-generator.php:53
+#: views/admin-generator.php:63
 msgid   "Product images are generated if this is disabled or can not be "
         "obtained."
 msgstr  ""
 
-#: views/admin-generator.php:79
+#: views/admin-generator.php:90
 msgid   "Provide one category per line"
 msgstr  ""
 
-#: views/admin-generator.php:102 views/admin-generator.php:113
+#: views/admin-generator.php:113 views/admin-generator.php:124
 msgid   "Reset"
 msgstr  ""
 
-#: views/admin-generator.php:107
+#: views/admin-generator.php:118
 msgid   "Reset to defaults"
 msgstr  ""
 
-#: views/admin-generator.php:135 views/admin-generator.php:145
+#: views/admin-generator.php:146 views/admin-generator.php:156
 msgid   "Run"
 msgstr  ""
 
@@ -154,7 +155,7 @@ msgstr  ""
 msgid   "Running"
 msgstr  ""
 
-#: views/admin-generator.php:96
+#: views/admin-generator.php:107
 msgid   "Save"
 msgstr  ""
 
@@ -163,11 +164,11 @@ msgstr  ""
 msgid   "Simple: %d"
 msgstr  ""
 
-#: views/admin-generator.php:120
+#: views/admin-generator.php:131
 msgid   "Single Run"
 msgstr  ""
 
-#: views/admin-generator.php:146
+#: views/admin-generator.php:157
 msgid   "Stop"
 msgstr  ""
 
@@ -195,7 +196,7 @@ msgid   "The plugin will create a <em>product-generator</em> user in the role "
         "of a <em>Shop Manager</em>."
 msgstr  ""
 
-#: woocommerce-product-generator.php:946
+#: woocommerce-product-generator.php:995
 msgid   "The user has the role of a Shop Manager."
 msgstr  ""
 
@@ -208,7 +209,7 @@ msgstr  ""
 msgid   "Time: %s seconds"
 msgstr  ""
 
-#: views/admin-generator.php:59
+#: views/admin-generator.php:70
 msgid   "Titles"
 msgstr  ""
 
@@ -217,7 +218,11 @@ msgstr  ""
 msgid   "Total Products: %d"
 msgstr  ""
 
-#: woocommerce-product-generator.php:944
+#: views/admin-generator.php:55
+msgid   "Unsplash Access Key"
+msgstr  ""
+
+#: woocommerce-product-generator.php:993
 #, php-format
 msgid   "Username: %s"
 msgstr  ""
@@ -232,7 +237,12 @@ msgstr  ""
 msgid   "Variations: %d"
 msgstr  ""
 
-#: woocommerce-product-generator.php:948
+#: views/admin-generator.php:59
+msgid   "You must provide your valid Access Key to be able to use images from "
+        "Unsplash."
+msgstr  ""
+
+#: woocommerce-product-generator.php:997
 #, php-format
 msgid   "[%s] Product Generator User"
 msgstr  ""

@@ -44,14 +44,25 @@
 			</p>
 
 			<p>
-				<label><?php esc_html_e( 'Images', 'woocommerce-product-generator' );?>
-				&nbsp;
-				<input type="checkbox" name="use_unsplash" value="1" <?php echo $use_unsplash ? 'checked' : ''; ?> />
-				<?php printf( __( 'Get images from <a href="https://unsplash.com/">Unsplash</a>', 'woocommerce-product-generator' ), self::USE_UNSPLASH ); ?>
+				<label>
+					<?php esc_html_e( 'Images', 'woocommerce-product-generator' );?>
+					&nbsp;
+					<input type="checkbox" name="use_unsplash" value="1" <?php echo $use_unsplash ? 'checked' : ''; ?> />
+					<?php printf( esc_html__( 'Get images from %s', 'woocommerce-product-generator' ), '<a href="https://unsplash.com/">Unsplash</a>' ); ?>
 				</label>
-				<br/>
+			</p>
+			<p>
+				<label><?php esc_html_e( 'Unsplash Access Key', 'woocommerce-product-generator' );?>
+					<input style="width:50%" type="password" name="unsplash_access_key" value="<?php echo esc_attr( $unsplash_access_key );?>" />
+				</label>
+				&emsp;
+				<span><?php esc_html_e( 'You must provide your valid Access Key to be able to use images from Unsplash.', 'woocommerce-product-generator' ); ?></span>
+			</p>
+
+			<p>
 				<?php esc_html_e( 'Product images are generated if this is disabled or can not be obtained.', 'woocommerce-product-generator' ); ?>
-				<br/>
+			</p>
+			<p>
 				<?php echo wp_kses_post( __( 'If you want to measure the performance of your site while generating products using the logged stats and those provided under <em>Continuous AJAX Run</em>, make sure to <strong>disable</strong> this option, as the impact of getting images via the network will be much higher than the product generation itself.', 'woocommerce-product-generator' ) ); ?>
 			</p>
 
@@ -150,4 +161,7 @@
 	<div id="product-generator-update"></div>
 	<div id="product-generator-blinker"></div>
 
+	<div class="product-generator-epilogue">
+		Created at <a href="https://www.itthinx.com/">itthinx.com</a> | Support this work via the <a href="https://www.itthinx.com/shop/">Shop</a> | Ask <a href="https://www.itthinx.com/plugins/woocommerce-product-generator/">Questions</a> about this tool
+	</div>
 </div>

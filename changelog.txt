@@ -5,7 +5,8 @@
 * Requires at least WordPress 6.5.
 * WooCommerce 10.2 compatible.
 * Name updated to Product Generator for WooCommerce.
-* Update - Updated the translation template.
+* Updated the translation template.
+* Added the Access Key setting which is required to get images from Unsplash.
 
 = 2.1.0 =
 * WordPress 6.0 compatible.

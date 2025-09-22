@@ -211,6 +211,7 @@ class WooCommerce_Product_Generator {
 			$limit        = !empty( $_POST['limit'] ) ? intval( trim( $_POST['limit'] ) ) : self::DEFAULT_LIMIT;
 			$per_run      = !empty( $_POST['per_run'] ) ? intval( trim( $_POST['per_run'] ) ) : self::DEFAULT_PER_RUN;
 			$use_unsplash = !empty( $_POST['use_unsplash'] );
+			$unsplash_access_key = trim( sanitize_text_field( $_POST['unsplash_access_key'] ?? '' ) );
 			$titles       = !empty( $_POST['titles'] ) ? $_POST['titles'] : '';
 			$contents     = !empty( $_POST['contents'] ) ? $_POST['contents'] : '';
 			$categories   = !empty( $_POST['categories'] ) ? $_POST['categories'] : '';
@@ -238,6 +239,10 @@ class WooCommerce_Product_Generator {
 
 			delete_option( 'woocommerce-product-generator-use-unsplash' );
 			add_option( 'woocommerce-product-generator-use-unsplash', $use_unsplash, null, 'no' );
+
+			if ( !empty( $unsplash_access_key ) ) {
+				add_option( 'woocommerce-product-generator-unsplash-access-key', $unsplash_access_key, null, 'no' );
+			}
 
 			delete_option( 'woocommerce-product-generator-titles' );
 			add_option( 'woocommerce-product-generator-title', $titles, null, 'no' );
@@ -320,6 +325,8 @@ class WooCommerce_Product_Generator {
 			delete_option( 'woocommerce-product-generator-use-unsplash' );
 			add_option( 'woocommerce-product-generator-use-unsplash', self::USE_UNSPLASH, null, 'no' );
 
+			delete_option( 'woocommerce-product-generator-unsplash-access-key' );
+
 			delete_option( 'woocommerce-product-generator-titles' );
 			add_option( 'woocommerce-product-generator-title', self::get_default_titles(), null, 'no' );
 
@@ -336,6 +343,7 @@ class WooCommerce_Product_Generator {
 		$limit    = get_option( 'woocommerce-product-generator-limit', self::DEFAULT_LIMIT );
 		$per_run  = get_option( 'woocommerce-product-generator-per-run', self::DEFAULT_PER_RUN );
 		$use_unsplash = get_option( 'woocommerce-product-generator-use-unsplash', self::USE_UNSPLASH );
+		$unsplash_access_key = get_option( 'woocommerce-product-generator-unsplash-access-key', '' );
 		$titles   = trim( stripslashes( get_option( 'woocommerce-product-generator-titles', self::get_default_titles() ) ) );
 		$contents = trim( stripslashes( get_option( 'woocommerce-product-generator-contents', self::get_default_contents() ) ) );
 		$categories = trim( stripslashes( get_option( 'woocommerce-product-generator-categories', self::get_default_categories() ) ) );
@@ -604,41 +612,82 @@ class WooCommerce_Product_Generator {
 		$use_unsplash = get_option( 'woocommerce-product-generator-use-unsplash', self::USE_UNSPLASH );
 		if ( $use_unsplash ) {
 			$unsplash_success = false;
-			// https://source.unsplash.com/960x960/?what-to-search-for
-			$context = stream_context_create( ['http' => ['ignore_errors' => true]] );
-			$unsplash_image = file_get_contents( sprintf( 'https://source.unsplash.com/960x960/?%s', esc_url( $title ) ), false, $context );
-			if ( isset( $http_response_header[0] ) ) {
-				if (
-					strpos( $http_response_header[0], '200' ) !== false || // OK
-					strpos( $http_response_header[0], '302' ) !== false // Found
-				) {
-					$unsplash_success = true;
+			$unsplash_access_key = get_option( 'woocommerce-product-generator-unsplash-access-key', '' );
+			if ( !empty( $unsplash_access_key ) ) {
+				$url = null;
+				$data = self::search_unsplash_photos( $title, $unsplash_access_key );
+				if ( $data !== null ) {
+					if ( isset( $data['results'] ) ) {
+
+						$pick = rand( 0, count( $data['results'] ) );
+						$url = $data['results'][$pick]['urls']['regular'] ?? null;
+						unset( $data['results'][$pick] );
+
+						// store rest for some time as pool
+						$picture_urls = get_transient( 'woocommerce-product-generator-unsplash-picture-urls' );
+						if ( !is_array( $picture_urls ) ) {
+							$picture_urls = array();
+						}
+						foreach ( $data['results'] as $result ) {
+							$url = $result['urls']['regular'] ?? null;
+							if ( $url !== null ) {
+								if ( !in_array( $url, $picture_urls ) ) {
+									$picture_urls[] = $url;
+								}
+							}
+						}
+						set_transient( 'woocommerce-product-generator-unsplash-picture-urls', $picture_urls, 3600 );
+					}
 				}
-			}
-			if ( $unsplash_success ) {
-				$image_name = self::get_image_name();
-				$r = wp_upload_bits( $image_name, null, $unsplash_image );
-				if ( !empty( $r ) && is_array( $r ) && !empty( $r['file'] ) ) {
-					$filetype = wp_check_filetype( $r['file'] );
-					$attachment_id = wp_insert_attachment(
-						array(
-							'post_author' => self::get_user_id(),
-							'post_title' => $title,
-							'post_mime_type' => $filetype['type'],
-							'post_status' => 'publish'
-						),
-						$r['file'],
-						$product->get_id()
-					);
-					if ( !empty( $attachment_id ) && !( $attachment_id instanceof WP_Error ) ) {
-						$generate_image = false;
-						include_once ABSPATH . 'wp-admin/includes/image.php';
-						if ( function_exists( 'wp_generate_attachment_metadata' ) ) {
-							$meta = wp_generate_attachment_metadata( $attachment_id, $r['file'] );
-							wp_update_attachment_metadata( $attachment_id, $meta );
+
+				if ( $url === null ) {
+					$picture_urls = get_transient( 'woocommerce-product-generator-unsplash-picture-urls' );
+					if ( is_array( $picture_urls ) ) {
+						$url = array_shift( $picture_urls );
+						set_transient( 'woocommerce-product-generator-unsplash-picture-urls', $picture_urls, 3600 );
+					}
+				}
+
+				if ( $url !== null ) {
+					$context = stream_context_create( ['http' => ['ignore_errors' => true]] );
+					$unsplash_image = file_get_contents( $url, false, $context );
+					if ( isset( $http_response_header[0] ) ) {
+						if (
+							strpos( $http_response_header[0], '200' ) !== false || // OK
+							strpos( $http_response_header[0], '302' ) !== false // Found
+						) {
+							$unsplash_success = true;
 						}
 					}
 				}
+
+				if ( $unsplash_success ) {
+					$image_name = self::get_image_name();
+					$r = wp_upload_bits( $image_name, null, $unsplash_image );
+					if ( !empty( $r ) && is_array( $r ) && !empty( $r['file'] ) ) {
+						$filetype = wp_check_filetype( $r['file'] );
+						$attachment_id = wp_insert_attachment(
+							array(
+								'post_author' => self::get_user_id(),
+								'post_title' => $title,
+								'post_mime_type' => $filetype['type'],
+								'post_status' => 'publish'
+							),
+							$r['file'],
+							$product->get_id()
+						);
+						if ( !empty( $attachment_id ) && !( $attachment_id instanceof WP_Error ) ) {
+							$generate_image = false;
+							include_once ABSPATH . 'wp-admin/includes/image.php';
+							if ( function_exists( 'wp_generate_attachment_metadata' ) ) {
+								$meta = wp_generate_attachment_metadata( $attachment_id, $r['file'] );
+								wp_update_attachment_metadata( $attachment_id, $meta );
+							}
+						}
+					}
+				}
+			} else {
+				self::log( 'Product Generator Unsplash missing Access Key' );
 			}
 		}
 		if ( $generate_image ) {
@@ -1174,6 +1223,80 @@ class WooCommerce_Product_Generator {
 		return self::$default_attributes;
 	}
 
+
+	/**
+	 * Search Unplash
+	 *
+	 * @since 3.0.0
+	 *
+	 * @param string $query
+	 * @param string $access_key
+	 * @param int $per_page
+	 * @param int $page
+	 *
+	 * @return mixed|null
+	 */
+	private static function search_unsplash_photos( $query, $access_key, $per_page = 10, $page = 1 ) {
+
+		if ( !function_exists( 'curl_init' ) ) {
+			self::log( 'Product Generator missing CURL' );
+			return null;
+		}
+
+		$url = add_query_arg(
+			array(
+				'query' => rawurlencode( $query ),
+				'per_page' => (int) $per_page,
+				'page' => (int) $page
+			),
+			'https://api.unsplash.com/search/photos'
+		);
+
+		$ch = curl_init( $url );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt( $ch, CURLOPT_HTTPHEADER, [
+			'Authorization: Client-ID ' . $access_key
+		] );
+		$response = curl_exec( $ch );
+
+		if ( curl_errno( $ch ) ) {
+			curl_close( $ch );
+			self::log(
+				sprintf(
+					'Product Generator Unsplash search request produced error %s',
+					curl_error($ch)
+				)
+			);
+			return null;
+		}
+
+		$http_code = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+		curl_close( $ch );
+
+		if ( $http_code !== 200 ) {
+			self::log(
+				sprintf(
+					'Product Generator Unsplash search yielded HTTP error %s',
+					$http_code
+				)
+			);
+			return null;
+		}
+
+		$data = json_decode( $response, true );
+
+		if ( json_last_error() !== JSON_ERROR_NONE ) {
+			self::log(
+				sprintf(
+					'Product Generator Unsplash search error decoding response %s',
+					json_last_error_msg()
+				)
+			);
+			return null;
+		}
+
+		return $data;
+	}
 }
 
 WooCommerce_Product_Generator::init();
