@@ -1,20 +1,20 @@
-=== WooCommerce Product Generator ===
+=== Product Generator for WooCommerce ===
 Contributors: itthinx, proaktion, helgatheviking, jamesgol, akshayar
-Donate link: http://www.itthinx.com/plugins/woocommerce-product-generator/
-Tags: automatic, benchmark, example, generator, performance, product, products, sample, test, tester, testing, test-tool, woocommerce
-Requires at least: 5.5
-Requires PHP: 5.6.0
-Tested up to: 6.0
-Stable tag: 2.1.0
+Donate link: https://www.itthinx.com/shop/
+Tags: benchmark, generator, performance, product, woocommerce
+Requires at least: 6.5
+Requires PHP: 7.4.0
+Tested up to: 6.8
+Stable tag: 3.0.0
 License: GPLv3
 
 A sample product generator for WooCommerce.
 
 == Description ==
 
-This plugin is intended to be used as a sample product generator for WooCommerce for use on development and testing sites.
+This is a sample product generator for WooCommerce, for use on development and testing sites.
 
-It's purpose is to provide an automated way of creating even very large sets of products, useful in providing a test environment for performance benchmarks and use case testing.
+Its purpose is to provide an automated way of creating even very large sets of products, useful in providing a test environment for performance benchmarks and use case testing.
 
 The plugin generates products taking into account the following characteristics:
 
@@ -35,7 +35,7 @@ The product generation stats and performance are also logged to the site's debug
 
 With the stats provided, this plugin also provides an easy way to benchmark a site: providing an insight into the site's performance measured by products generated per second. If you want to measure the performance of your site while generating products, make sure to <strong>disable</strong> the option <em>Get images from Unsplash</em>, as the impact of getting images via the network will be much higher than the product generation itself.
 
-Fork the [WooCommerce Product Generator](https://github.com/itthinx/woocommerce-product-generator) repository to customize the products generated as desired.
+Fork the [Repository](https://github.com/itthinx/woocommerce-product-generator) to customize the products generated as desired.
 
 == Installation ==
 
@@ -43,13 +43,13 @@ Fork the [WooCommerce Product Generator](https://github.com/itthinx/woocommerce-
 
 Log in as an administrator and go to <strong>Plugins > Add New</strong>.
 
-Type <em>WooCommerce Product Generator</em> in the search field, locate the <em>WooCommerce Product Generator<em> plugin by <em>itthinx</em> and install it by clicking <em>Install Now</em>.
+Type <em>Product Generator</em> in the search field, locate the <em>Product Generator for WooCommerce<em> plugin by <em>itthinx</em> and install it by clicking <em>Install Now</em>.
 
 Now <em>activate</em> the plugin to be able to generate sample products.
 
 = FTP =
 
-You can install the plugin via FTP, see [Manual Plugin Installation](http://codex.wordpress.org/Managing_Plugins#Manual_Plugin_Installation).
+You can install the plugin via FTP, see [Manual Plugin Installation](https://codex.wordpress.org/Managing_Plugins#Manual_Plugin_Installation).
 
 == Screenshots ==
 
