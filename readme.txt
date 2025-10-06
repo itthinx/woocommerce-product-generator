@@ -5,7 +5,7 @@ Tags: benchmark, generator, performance, product, woocommerce
 Requires at least: 6.5
 Requires PHP: 7.4.0
 Tested up to: 6.8
-Stable tag: 3.0.0
+Stable tag: 3.1.0
 License: GPLv3
 
 A sample product generator for WooCommerce.
