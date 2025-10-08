@@ -7,6 +7,10 @@
  * @since 1.2.0
  *
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 ?>
 
 <h1><?php _e( 'Product Generator', 'woocommerce-product-generator' ); ?></h1>
@@ -85,7 +89,7 @@
 				<label>
 				<?php esc_html_e( 'Categories', 'woocommerce-product-generator' ); ?>
 				<br/>
-				<textarea name="categories" style="height:10em;width:90%;"><?php echo htmlentities( $categories ); ?></textarea>
+				<textarea name="categories" style="height:10em;width:90%;"><?php echo esc_textarea( $categories ); ?></textarea>
 				<br/>
 				<?php echo wp_kses_post( __( 'Provide one category per line', 'woocommerce-product-generator' ) ); ?>
 				</label>
@@ -128,7 +132,7 @@
 		</form>
 	</div>
 
-	<h2><?php _e( 'Single Run', 'woocommerce-product-generator' ); ?></h2>
+	<h2><?php esc_html_e( 'Single Run', 'woocommerce-product-generator' ); ?></h2>
 
 	<div class="generate">
 		<form name="generate" method="post" action="">

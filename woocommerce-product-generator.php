@@ -30,6 +30,10 @@
  * WC tested up to: 10.3
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 define( 'WOOPROGEN_PLUGIN_VERSION', '3.1.0' );
 define( 'WOOPROGEN_PLUGIN_DOMAIN', 'woocommerce-product-generator' );
 define( 'WOOPROGEN_PLUGIN_URL', WP_PLUGIN_URL . '/woocommerce-product-generator' );
@@ -196,8 +200,8 @@ class WooCommerce_Product_Generator {
 			$per_run = get_option( 'woocommerce-product-generator-per-run', self::DEFAULT_PER_RUN );
 			$generated = self::run( $per_run );
 			$n_products = self::get_product_count();
-			$result = array_merge( array( 'total' => $n_products ), $generated );
-			echo json_encode( $result );
+			$result = array_merge( array( 'total' => $n_products ), $generated );error_log( print_r( $result, true ) );
+			echo wp_json_encode( $result );
 			exit;
 		}
 	}
@@ -235,7 +239,7 @@ class WooCommerce_Product_Generator {
 				$per_run = self::MAX_PER_RUN;
 			}
 			delete_option( 'woocommerce-product-generator-per-run' );
-			add_option( 'woocommerce-product-generator-per-run', $per_run, null, 'no' );
+			add_option( 'woocommerce-product-generator-per-run', $per_run, '', 'no' );
 
 			delete_option( 'woocommerce-product-generator-use-unsplash' );
 			add_option( 'woocommerce-product-generator-use-unsplash', $use_unsplash, null, 'no' );
@@ -284,7 +288,7 @@ class WooCommerce_Product_Generator {
 			delete_option( 'woocommerce-product-generator-attributes' );
 			add_option( 'woocommerce-product-generator-attributes', $attributes, null, 'no' );
 
-		} else if ( isset( $_POST['action'] ) && ( $_POST['action'] == 'generate' ) && wp_verify_nonce( $_POST['product-generate'], 'admin' ) ) {
+		} else if ( isset( $_POST['action'] ) && ( $_POST['action'] == 'generate' ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['product-generate'] ) ), 'admin' ) ) {
 			$max = isset( $_POST['max'] ) ? intval( $_POST['max'] ) : 0;
 			if ( $max > 0 ) {
 
@@ -465,7 +469,7 @@ class WooCommerce_Product_Generator {
 		$title = self::get_title();
 		$i = 0;
 		while( ( $i < 99 ) ) {
-			if ( get_page_by_title( $title, OBJECT, 'product' ) ) {
+			if ( self::get_product_by_title( $title ) ) {
 				$title .= " " . self::get_title();
 			} else {
 				break;
@@ -1296,6 +1300,28 @@ class WooCommerce_Product_Generator {
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Get products by title
+	 *
+	 * @param string $title
+	 * @return NULL|boolean
+	 */
+	private static function get_product_by_title( $title ) {
+		$result = null;
+		$args = array(
+			'post_type'      => 'product',
+			'post_status'    => 'publish',
+			'posts_per_page' => 1,
+			'title'          => $title,
+		);
+		$posts = get_posts( $args );
+		if ( count( $posts ) > 0 ) {
+			$result = true;
+		}
+
+		return $result;
 	}
 }
 
