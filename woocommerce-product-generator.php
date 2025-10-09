@@ -200,7 +200,7 @@ class WooCommerce_Product_Generator {
 			$per_run = get_option( 'woocommerce-product-generator-per-run', self::DEFAULT_PER_RUN );
 			$generated = self::run( $per_run );
 			$n_products = self::get_product_count();
-			$result = array_merge( array( 'total' => $n_products ), $generated );error_log( print_r( $result, true ) );
+			$result = array_merge( array( 'total' => $n_products ), $generated );
 			echo wp_json_encode( $result );
 			exit;
 		}
@@ -1303,22 +1303,21 @@ class WooCommerce_Product_Generator {
 	}
 
 	/**
-	 * Get products by title
+	 * Get product by title
 	 *
-	 * @param string $title
-	 * @return NULL|boolean
+	 * @param string $title Product title
+	 * @return object WC_Product|null
 	 */
 	private static function get_product_by_title( $title ) {
 		$result = null;
 		$args = array(
-			'post_type'      => 'product',
-			'post_status'    => 'publish',
-			'posts_per_page' => 1,
-			'title'          => $title,
+			'name'   => $title,
+			'limit'  => 1,
+			'status' => 'publish'
 		);
-		$posts = get_posts( $args );
-		if ( count( $posts ) > 0 ) {
-			$result = true;
+		$products = wc_get_products( $args );
+		if ( isset( $products[0] ) ) {
+			$result = $products[0];
 		}
 
 		return $result;
