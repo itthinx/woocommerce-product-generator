@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 
-<h1><?php _e( 'Product Generator', 'woocommerce-product-generator' ); ?></h1>
+<h1><?php esc_html_e( 'Product Generator', 'woocommerce-product-generator' ); ?></h1>
 
 <div class="product-generator-admin" style="margin-right:1em;">
 
@@ -43,7 +43,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<p>
 				<label><?php esc_html_e( 'Per Run', 'woocommerce-product-generator' );?>
 				<input type="text" name="per_run" value="<?php echo esc_attr( $per_run );?>" />
-				<?php printf( esc_html__( 'Maximum %d', 'woocommerce-product-generator' ), self::MAX_PER_RUN ); ?>
+				<?php printf( esc_html__( 'Maximum %d', 'woocommerce-product-generator' ), esc_attr( self::MAX_PER_RUN ) ); ?>
 				</label>
 			</p>
 
@@ -52,7 +52,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<?php esc_html_e( 'Images', 'woocommerce-product-generator' );?>
 					&nbsp;
 					<input type="checkbox" name="use_unsplash" value="1" <?php echo $use_unsplash ? 'checked' : ''; ?> />
-					<?php printf( esc_html__( 'Get images from %s', 'woocommerce-product-generator' ), '<a href="https://unsplash.com/">Unsplash</a>' ); ?>
+					<?php printf( esc_html__( 'Get images from %s', 'woocommerce-product-generator' ), '<a href="'. esc_url( 'https://unsplash.com/' ) .'">Unsplash</a>' ); ?>
 				</label>
 			</p>
 			<p>
@@ -73,7 +73,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<p>
 				<label><?php esc_html_e( 'Titles', 'woocommerce-product-generator' ); ?>
 				<br/>
-				<textarea name="titles" style="height:10em;width:90%;"><?php echo htmlentities( $titles ); ?></textarea>
+				<textarea name="titles" style="height:10em;width:90%;"><?php echo esc_textarea( $titles ); ?></textarea>
 				</label>
 			</p>
 
@@ -81,7 +81,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<label>
 				<?php esc_html_e( 'Contents', 'woocommerce-product-generator' ); ?>
 				<br/>
-				<textarea name="contents" style="height:20em;width:90%;"><?php echo htmlentities( $contents ); ?></textarea>
+				<textarea name="contents" style="height:20em;width:90%;"><?php echo esc_textarea( $contents ); ?></textarea>
 				</label>
 			</p>
 
@@ -99,7 +99,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<label>
 				<?php esc_html_e( 'Attributes', 'woocommerce-product-generator' ); ?>
 				<br/>
-				<textarea name="attributes" style="height:10em;width:90%;"><?php echo htmlentities( $attributes ); ?></textarea>
+				<textarea name="attributes" style="height:10em;width:90%;"><?php echo esc_textarea( $attributes ); ?></textarea>
 				<br/>
 				<?php echo wp_kses_post( __( 'Each attribute line must use the format: <code>Name | term1, term2, ...</code>', 'woocommerce-product-generator' ) ); ?>
 				</label>
