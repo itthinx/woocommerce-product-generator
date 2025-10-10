@@ -1146,10 +1146,10 @@ class WooCommerce_Product_Generator {
 			$output = ob_get_clean();
 			imagedestroy( $image );
 		} else {
-			$image = file_get_contents( WOOPROGEN_PLUGIN_URL . '/images/placeholder.png' );
-			ob_start();
-			echo $image;
-			$output = ob_get_clean();
+			$output = @file_get_contents( WOOPROGEN_PLUGIN_URL . '/images/placeholder.png' );
+			if ( $output === false ) {
+				$output = '';
+			}
 		}
 		return $output;
 
