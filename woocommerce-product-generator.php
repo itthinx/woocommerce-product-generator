@@ -30,6 +30,10 @@
  * WC tested up to: 10.3
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 define( 'WOOPROGEN_PLUGIN_VERSION', '3.1.0' );
 define( 'WOOPROGEN_PLUGIN_DOMAIN', 'woocommerce-product-generator' );
 define( 'WOOPROGEN_PLUGIN_URL', WP_PLUGIN_URL . '/woocommerce-product-generator' );
@@ -67,8 +71,20 @@ class WooCommerce_Product_Generator {
 	 * @since 3.0.0
 	 */
 	public static function init() {
+		add_action( 'plugins_loaded', array( __CLASS__, 'plugins_loaded' ) );
 		add_action( 'woocommerce_loaded', array( __CLASS__, 'woocommerce_loaded' ) );
 		add_action( 'before_woocommerce_init', array( __CLASS__, 'before_woocommerce_init' ) );
+	}
+
+	/**
+	 * Displays a warning message if WC is not active or version check fails.
+	 * @return boolean
+	 */
+	public static function plugins_loaded() {
+		if ( ! defined( 'WC_VERSION' ) || version_compare( WC_VERSION, SELF::REQUIRED_WOO, '<' ) ) {
+			add_action( 'admin_notices', array( __CLASS__, 'min_woo_notice' ) );
+			return false;
+		}
 	}
 
 	/**
@@ -116,18 +132,27 @@ class WooCommerce_Product_Generator {
 		load_plugin_textdomain( 'woocommerce-product-generator' , false , dirname( plugin_basename( __FILE__ ) ) .  '/languages/' );
 	}
 
-
 	/**
 	 * Displays a warning message if version check fails.
 	 *
 	 * @return string
 	 */
 	public static function min_woo_notice() {
-	    echo '<div class="error"><p>' . sprintf( __( 'Product Generator for WooCommerce requires at least WooCommerce %s in order to function. Please upgrade WooCommerce.', 'woocommerce-product-generator' ), self::REQUIRED_WOO ) . '</p></div>';
+		echo wp_kses(
+			'<div class="error"><p>' . 
+			sprintf( esc_html__( 'Product Generator for WooCommerce requires at least WooCommerce %s in order to function. Please upgrade WooCommerce.', 'woocommerce-product-generator' ), esc_attr( self::REQUIRED_WOO ) ) . 
+			'</p></div>',
+			array(
+				'div' => array(
+					'class' => array()
+				),
+				'p' => array()
+			)
+		);
 	}
 
 	/*-----------------------------------------------------------------------------------*/
-	/*  Admin                                                                     */
+	/*  Admin                                                                            */
 	/*-----------------------------------------------------------------------------------*/
 
 	/**
@@ -154,7 +179,7 @@ class WooCommerce_Product_Generator {
 			'total'            => __( 'Total Products: %d', 'woocommerce-product-generator' ),
 			'running'          => __( 'Running', 'woocommerce-product-generator' ),
 			'stopped'          => __( 'Stopped', 'woocommerce-product-generator' ),
-			'limit_reached'    => __( 'Limit reached, increase it to generate more products' ),
+			'limit_reached'    => __( 'Limit reached, increase it to generate more products', 'woocommerce-product-generator' ),
 			'generation_stats' => __( 'Generation Stats', 'woocommerce-product-generator' ),
 			'stats_sum'        => __( '&#425: %d', 'woocommerce-product-generator' ),
 			'stats_simple'     => __( 'Simple: %d', 'woocommerce-product-generator' ),
@@ -178,7 +203,7 @@ class WooCommerce_Product_Generator {
 	 * @param array $links with additional links
 	 */
 	public static function admin_settings_link( $links ) {
-		$links[] = '<a href="' . get_admin_url( null, 'admin.php?page=product-generator' ) . '">' . __( 'Product Generator', 'woocommerce-product-generator' ) . '</a>';
+		$links[] = '<a href="' . get_admin_url( null, 'admin.php?page=product-generator' ) . '">' . esc_html__( 'Product Generator', 'woocommerce-product-generator' ) . '</a>';
 		return $links;
 	}
 
@@ -191,23 +216,23 @@ class WooCommerce_Product_Generator {
 	 * property.
 	 */
 	public static function wp_init() {
-		if ( wp_verify_nonce( $_POST['nonce'], 'product-generator-js' ) ) {
+		if ( wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'product-generator-js' ) ) {
 			// run generator
 			$per_run = get_option( 'woocommerce-product-generator-per-run', self::DEFAULT_PER_RUN );
 			$generated = self::run( $per_run );
 			$n_products = self::get_product_count();
 			$result = array_merge( array( 'total' => $n_products ), $generated );
-			echo json_encode( $result );
+			echo wp_json_encode( $result );
 			exit;
 		}
 	}
 
 	public static function generator() {
 		if ( !current_user_can( 'manage_woocommerce' ) ) {
-			wp_die( __( 'Access denied.', 'woocommerce-product-generator' ) );
+			wp_die( esc_html__( 'Access denied.', 'woocommerce-product-generator' ) );
 		}
 
-		if ( isset( $_POST['action'] ) && ( $_POST['action'] == 'save' ) && wp_verify_nonce( $_POST['product-generator'], 'admin' ) ) {
+		if ( isset( $_POST['action'] ) && ( $_POST['action'] == 'save' ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['product-generator'] ) ), 'admin' ) ) {
 			$limit        = !empty( $_POST['limit'] ) ? intval( trim( $_POST['limit'] ) ) : self::DEFAULT_LIMIT;
 			$per_run      = !empty( $_POST['per_run'] ) ? intval( trim( $_POST['per_run'] ) ) : self::DEFAULT_PER_RUN;
 			$use_unsplash = !empty( $_POST['use_unsplash'] );
@@ -221,7 +246,7 @@ class WooCommerce_Product_Generator {
 				$limit = self::DEFAULT_LIMIT;
 			}
 			delete_option( 'woocommerce-product-generator-limit' );
-			add_option( 'woocommerce-product-generator-limit', $limit, null, 'no' );
+			add_option( 'woocommerce-product-generator-limit', $limit, '', 'no' );
 			// reflect updated limit so script is aware, otherwise it will have the old value
 			wp_add_inline_script(
 				'product-generator',
@@ -235,27 +260,27 @@ class WooCommerce_Product_Generator {
 				$per_run = self::MAX_PER_RUN;
 			}
 			delete_option( 'woocommerce-product-generator-per-run' );
-			add_option( 'woocommerce-product-generator-per-run', $per_run, null, 'no' );
+			add_option( 'woocommerce-product-generator-per-run', $per_run, '', 'no' );
 
 			delete_option( 'woocommerce-product-generator-use-unsplash' );
-			add_option( 'woocommerce-product-generator-use-unsplash', $use_unsplash, null, 'no' );
+			add_option( 'woocommerce-product-generator-use-unsplash', $use_unsplash, '', 'no' );
 
 			if ( !empty( $unsplash_access_key ) ) {
-				add_option( 'woocommerce-product-generator-unsplash-access-key', $unsplash_access_key, null, 'no' );
+				add_option( 'woocommerce-product-generator-unsplash-access-key', $unsplash_access_key, '', 'no' );
 			}
 
 			delete_option( 'woocommerce-product-generator-titles' );
-			add_option( 'woocommerce-product-generator-title', $titles, null, 'no' );
+			add_option( 'woocommerce-product-generator-title', $titles, '', 'no' );
 
 			delete_option( 'woocommerce-product-generator-contents' );
-			add_option( 'woocommerce-product-generator-contents', $contents, null, 'no' );
+			add_option( 'woocommerce-product-generator-contents', $contents, '', 'no' );
 
 			$categories = explode( "\n", $categories );
 			$categories = array_map( 'trim', $categories );
 			$categories = array_unique( $categories );
 			$categories = implode( "\n", $categories );
 			delete_option( 'woocommerce-product-generator-categories' );
-			add_option( 'woocommerce-product-generator-categories', $categories, null, 'no' );
+			add_option( 'woocommerce-product-generator-categories', $categories, '', 'no' );
 
 			$save_attributes = '';
 			$attribute_defs = explode( "\n", $attributes );
@@ -282,9 +307,9 @@ class WooCommerce_Product_Generator {
 			}
 			$attributes = $save_attributes;
 			delete_option( 'woocommerce-product-generator-attributes' );
-			add_option( 'woocommerce-product-generator-attributes', $attributes, null, 'no' );
+			add_option( 'woocommerce-product-generator-attributes', $attributes, '', 'no' );
 
-		} else if ( isset( $_POST['action'] ) && ( $_POST['action'] == 'generate' ) && wp_verify_nonce( $_POST['product-generate'], 'admin' ) ) {
+		} else if ( isset( $_POST['action'] ) && ( $_POST['action'] == 'generate' ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['product-generate'] ) ), 'admin' ) ) {
 			$max = isset( $_POST['max'] ) ? intval( $_POST['max'] ) : 0;
 			if ( $max > 0 ) {
 
@@ -315,29 +340,29 @@ class WooCommerce_Product_Generator {
 				);
 
 			}
-		} else if ( isset( $_POST['action'] ) && ( $_POST['action'] == 'reset' ) && wp_verify_nonce( $_POST['product-generator-reset'], 'admin' ) ) {
+		} else if ( isset( $_POST['action'] ) && ( $_POST['action'] == 'reset' ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['product-generator-reset'] ) ), 'admin' ) ) {
 			delete_option( 'woocommerce-product-generator-limit' );
-			add_option( 'woocommerce-product-generator-limit', self::DEFAULT_LIMIT, null, 'no' );
+			add_option( 'woocommerce-product-generator-limit', self::DEFAULT_LIMIT, '', 'no' );
 
 			delete_option( 'woocommerce-product-generator-per-run' );
-			add_option( 'woocommerce-product-generator-per-run', self::DEFAULT_PER_RUN, null, 'no' );
+			add_option( 'woocommerce-product-generator-per-run', self::DEFAULT_PER_RUN, '', 'no' );
 
 			delete_option( 'woocommerce-product-generator-use-unsplash' );
-			add_option( 'woocommerce-product-generator-use-unsplash', self::USE_UNSPLASH, null, 'no' );
+			add_option( 'woocommerce-product-generator-use-unsplash', self::USE_UNSPLASH, '', 'no' );
 
 			delete_option( 'woocommerce-product-generator-unsplash-access-key' );
 
 			delete_option( 'woocommerce-product-generator-titles' );
-			add_option( 'woocommerce-product-generator-title', self::get_default_titles(), null, 'no' );
+			add_option( 'woocommerce-product-generator-title', self::get_default_titles(), '', 'no' );
 
 			delete_option( 'woocommerce-product-generator-contents' );
-			add_option( 'woocommerce-product-generator-contents', self::get_default_contents(), null, 'no' );
+			add_option( 'woocommerce-product-generator-contents', self::get_default_contents(), '', 'no' );
 
 			delete_option( 'woocommerce-product-generator-categories' );
-			add_option( 'woocommerce-product-generator-categories', self::get_default_categories(), null, 'no' );
+			add_option( 'woocommerce-product-generator-categories', self::get_default_categories(), '', 'no' );
 
 			delete_option( 'woocommerce-product-generator-attributes' );
-			add_option( 'woocommerce-product-generator-attributes', self::get_default_attributes(), null, 'no' );
+			add_option( 'woocommerce-product-generator-attributes', self::get_default_attributes(), '', 'no' );
 		}
 
 		$limit    = get_option( 'woocommerce-product-generator-limit', self::DEFAULT_LIMIT );
@@ -465,7 +490,7 @@ class WooCommerce_Product_Generator {
 		$title = self::get_title();
 		$i = 0;
 		while( ( $i < 99 ) ) {
-			if ( get_page_by_title( $title, OBJECT, 'product' ) ) {
+			if ( self::get_product_by_title( $title ) ) {
 				$title .= " " . self::get_title();
 			} else {
 				break;
@@ -989,10 +1014,10 @@ class WooCommerce_Product_Generator {
 				$user = get_userdata( $user_id );
 				$blogname = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
 
-				$message  = sprintf( __( 'Product generator user created on %s:', 'woocommerce-product-generator' ), $blogname ) . "\r\n\r\n";
-				$message .= sprintf( __( 'Username: %s', 'woocommerce-product-generator' ), $user->user_login ) . "\r\n\r\n";
-				$message .= sprintf( __( 'Password: %s', 'woocommerce-product-generator' ), $user_pass ) . "\r\n\r\n";
-				$message .= __( 'The user has the role of a Shop Manager.', 'woocommerce-product-generator' ) . "\r\n";
+				$message  = sprintf( __( 'Product generator user created on %s:', 'woocommerce-product-generator' ), esc_attr( $blogname ) ) . "\r\n\r\n";
+				$message .= sprintf( __( 'Username: %s', 'woocommerce-product-generator' ), esc_attr( $user->user_login ) ) . "\r\n\r\n";
+				$message .= sprintf( __( 'Password: %s', 'woocommerce-product-generator' ), esc_attr( $user_pass ) ) . "\r\n\r\n";
+				$message .= esc_html__( 'The user has the role of a Shop Manager.', 'woocommerce-product-generator' ) . "\r\n";
 
 				@wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Product Generator User', 'woocommerce-product-generator' ), $blogname ), $message);
 			}
@@ -1121,10 +1146,10 @@ class WooCommerce_Product_Generator {
 			$output = ob_get_clean();
 			imagedestroy( $image );
 		} else {
-			$image = file_get_contents( WOOPROGEN_PLUGIN_URL . '/images/placeholder.png' );
-			ob_start();
-			echo $image;
-			$output = ob_get_clean();
+			$output = @file_get_contents( WOOPROGEN_PLUGIN_URL . '/images/placeholder.png' );
+			if ( $output === false ) {
+				$output = '';
+			}
 		}
 		return $output;
 
@@ -1296,6 +1321,27 @@ class WooCommerce_Product_Generator {
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Get product by title
+	 *
+	 * @param string $title Product title
+	 * @return WC_Product|null
+	 */
+	private static function get_product_by_title( $title ) {
+		$result = null;
+		$args = array(
+			'name'   => $title,
+			'limit'  => 1,
+			'status' => 'publish'
+		);
+		$products = wc_get_products( $args );
+		if ( isset( $products[0] ) ) {
+			$result = $products[0];
+		}
+
+		return $result;
 	}
 }
 
