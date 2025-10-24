@@ -52,7 +52,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<?php esc_html_e( 'Images', 'woocommerce-product-generator' );?>
 					&nbsp;
 					<input type="checkbox" name="use_unsplash" value="1" <?php echo $use_unsplash ? 'checked' : ''; ?> />
-					<?php printf( esc_html__( 'Get images from %s', 'woocommerce-product-generator' ), '<a href="'. esc_url( 'https://unsplash.com/' ) .'">Unsplash</a>' ); ?>
+					<?php printf( esc_html__( 'Get images from %s', 'woocommerce-product-generator' ), '<a href="https://unsplash.com/">Unsplash</a>' ); ?>
 				</label>
 			</p>
 			<p>

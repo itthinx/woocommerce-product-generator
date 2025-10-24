@@ -1327,7 +1327,7 @@ class WooCommerce_Product_Generator {
 	 * Get product by title
 	 *
 	 * @param string $title Product title
-	 * @return object WC_Product|null
+	 * @return WC_Product|null
 	 */
 	private static function get_product_by_title( $title ) {
 		$result = null;
