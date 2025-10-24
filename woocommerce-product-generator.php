@@ -18,6 +18,8 @@
  * @package woocommerce-product-generator
  * @since 1.0.0
  *
+ * @phpcs:disable WordPress.WP.I18n.MissingTranslatorsComment, WordPress.WP.AlternativeFunctions.rand_rand, PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound, WordPress.WP.AlternativeFunctions.curl_curl_error,  WordPress.WP.AlternativeFunctions.curl_curl_init,  WordPress.WP.AlternativeFunctions.curl_curl_setopt,  WordPress.WP.AlternativeFunctions.curl_curl_exec,  WordPress.WP.AlternativeFunctions.curl_curl_errno,  WordPress.WP.AlternativeFunctions.curl_curl_close,  WordPress.WP.AlternativeFunctions.curl_curl_getinfo,  WordPress.PHP.DevelopmentFunctions.error_log_error_log
+ *
  * Plugin Name: Product Generator for WooCommerce
  * Plugin URI: https://www.itthinx.com/plugins/woocommerce-product-generator/
  * Description: A sample product generator for WooCommerce.
@@ -42,6 +44,8 @@ define( 'WOOPROGEN_PLUGIN_FILE', __FILE__ );
 if ( !defined( 'WPG_LOG' ) ) {
 	define( 'WPG_LOG', true );
 }
+
+// @phpcs:ignore WordPress.WP.AlternativeFunctions.rand_rand
 
 /**
  * Product Generator.
@@ -451,6 +455,7 @@ class WooCommerce_Product_Generator {
 	public static function get_product_count() {
 		//$counts = wp_count_posts( 'product' ); // <-- nah ... :|
 		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		return intval( $wpdb->get_var(
 			"SELECT count(*) FROM $wpdb->posts WHERE post_type = 'product' and post_status = 'publish'"
 		) );

@@ -6,6 +6,8 @@
  * @package woocommerce-product-generator
  * @since 1.2.0
  *
+ * @phpcs:disable WordPress.WP.I18n.MissingTranslatorsComment
+ *
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
