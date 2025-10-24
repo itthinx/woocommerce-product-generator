@@ -139,7 +139,8 @@ class WooCommerce_Product_Generator {
 	 */
 	public static function min_woo_notice() {
 		echo wp_kses(
-			'<div class="error"><p>' . 
+			'<div class="error"><p>' .
+			/* translators: %s WC version */
 			sprintf( esc_html__( 'Product Generator for WooCommerce requires at least WooCommerce %s in order to function. Please upgrade WooCommerce.', 'woocommerce-product-generator' ), esc_attr( self::REQUIRED_WOO ) ) . 
 			'</p></div>',
 			array(
@@ -176,16 +177,23 @@ class WooCommerce_Product_Generator {
 
 		$l10n = array(
 			'generating'       => __( 'Generating', 'woocommerce-product-generator' ),
+			/* translators: %d Number of Products */
 			'total'            => __( 'Total Products: %d', 'woocommerce-product-generator' ),
 			'running'          => __( 'Running', 'woocommerce-product-generator' ),
 			'stopped'          => __( 'Stopped', 'woocommerce-product-generator' ),
 			'limit_reached'    => __( 'Limit reached, increase it to generate more products', 'woocommerce-product-generator' ),
 			'generation_stats' => __( 'Generation Stats', 'woocommerce-product-generator' ),
+			/* translators: %d Number of Products */
 			'stats_sum'        => __( '&#425: %d', 'woocommerce-product-generator' ),
+			/* translators: %d Number of Simple Products */
 			'stats_simple'     => __( 'Simple: %d', 'woocommerce-product-generator' ),
+			/* translators: %d Number of Variable Products */
 			'stats_variable'   => __( 'Variable: %d', 'woocommerce-product-generator' ),
+			/* translators: %d Number of Variations */
 			'stats_variations' => __( 'Variations: %d', 'woocommerce-product-generator' ),
+			/* translators: %s Elapsed time */
 			'stats_time'       => __( 'Time: %s seconds', 'woocommerce-product-generator' ),
+			/* translators: %s Products per Second */
 			'stats_pps'        => __( 'Performance: %s Products per Second', 'woocommerce-product-generator' ),
 			'ajax_url'         => admin_url( 'admin-ajax.php' ),
 			'js_nonce'         => wp_create_nonce( 'product-generator-js' ),
@@ -216,7 +224,7 @@ class WooCommerce_Product_Generator {
 	 * property.
 	 */
 	public static function wp_init() {
-		if ( wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'product-generator-js' ) ) {
+		if ( isset( $_POST['nonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'product-generator-js' ) ) {
 			// run generator
 			$per_run = get_option( 'woocommerce-product-generator-per-run', self::DEFAULT_PER_RUN );
 			$generated = self::run( $per_run );
@@ -232,15 +240,20 @@ class WooCommerce_Product_Generator {
 			wp_die( esc_html__( 'Access denied.', 'woocommerce-product-generator' ) );
 		}
 
-		if ( isset( $_POST['action'] ) && ( $_POST['action'] == 'save' ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['product-generator'] ) ), 'admin' ) ) {
-			$limit        = !empty( $_POST['limit'] ) ? intval( trim( $_POST['limit'] ) ) : self::DEFAULT_LIMIT;
-			$per_run      = !empty( $_POST['per_run'] ) ? intval( trim( $_POST['per_run'] ) ) : self::DEFAULT_PER_RUN;
-			$use_unsplash = !empty( $_POST['use_unsplash'] );
-			$unsplash_access_key = trim( sanitize_text_field( $_POST['unsplash_access_key'] ?? '' ) );
-			$titles       = !empty( $_POST['titles'] ) ? $_POST['titles'] : '';
-			$contents     = !empty( $_POST['contents'] ) ? $_POST['contents'] : '';
-			$categories   = !empty( $_POST['categories'] ) ? $_POST['categories'] : '';
-			$attributes   = !empty( $_POST['attributes'] ) ? $_POST['attributes'] : '';
+		if (
+			isset( $_POST['action'] ) &&
+			( $_POST['action'] == 'save' ) &&
+			isset( $_POST['product-generator'] ) &&
+			wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['product-generator'] ) ), 'admin' ) 
+		) {
+			$limit        = !empty( $_POST['limit'] ) ? intval( trim( wp_unslash( $_POST['limit'] ) ) ) : self::DEFAULT_LIMIT;
+			$per_run      = !empty( $_POST['per_run'] ) ? intval( trim( wp_unslash( $_POST['per_run'] ) ) ) : self::DEFAULT_PER_RUN;
+			$use_unsplash = !empty( $_POST['use_unsplash'] ) ?  trim( wp_unslash( $_POST['use_unsplash'] ) ) : '';
+			$unsplash_access_key = !empty( $_POST['unsplash_access_key'] ) ? trim( sanitize_text_field( wp_unslash( $_POST['unsplash_access_key'] ) ) ) : '';
+			$titles       = !empty( $_POST['titles'] ) ? sanitize_textarea_field( wp_unslash( $_POST['titles'] ) ) : '';
+			$contents     = !empty( $_POST['contents'] ) ? sanitize_textarea_field( wp_unslash( $_POST['contents'] ) ) : '';
+			$categories   = !empty( $_POST['categories'] ) ? sanitize_textarea_field( wp_unslash( $_POST['categories'] ) ) : '';
+			$attributes   = !empty( $_POST['attributes'] ) ? sanitize_textarea_field( wp_unslash( $_POST['attributes'] ) ) : '';
 
 			if ( $limit < 0 ) {
 				$limit = self::DEFAULT_LIMIT;
@@ -309,7 +322,12 @@ class WooCommerce_Product_Generator {
 			delete_option( 'woocommerce-product-generator-attributes' );
 			add_option( 'woocommerce-product-generator-attributes', $attributes, '', 'no' );
 
-		} else if ( isset( $_POST['action'] ) && ( $_POST['action'] == 'generate' ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['product-generate'] ) ), 'admin' ) ) {
+		} else if (
+			isset( $_POST['action'] ) &&
+			( $_POST['action'] == 'generate' ) &&
+			isset( $_POST['product-generate'] ) &&
+			wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['product-generate'] ) ), 'admin' )
+		) {
 			$max = isset( $_POST['max'] ) ? intval( $_POST['max'] ) : 0;
 			if ( $max > 0 ) {
 
@@ -340,7 +358,12 @@ class WooCommerce_Product_Generator {
 				);
 
 			}
-		} else if ( isset( $_POST['action'] ) && ( $_POST['action'] == 'reset' ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['product-generator-reset'] ) ), 'admin' ) ) {
+		} else if (
+			isset( $_POST['action'] ) &&
+			( $_POST['action'] == 'reset' ) &&
+			isset( $_POST['product-generator-reset'] ) &&
+			wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['product-generator-reset'] ) ), 'admin' )
+		) {
 			delete_option( 'woocommerce-product-generator-limit' );
 			add_option( 'woocommerce-product-generator-limit', self::DEFAULT_LIMIT, '', 'no' );
 
@@ -1014,11 +1037,15 @@ class WooCommerce_Product_Generator {
 				$user = get_userdata( $user_id );
 				$blogname = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
 
+				/* translators: %s Blogname */
 				$message  = sprintf( __( 'Product generator user created on %s:', 'woocommerce-product-generator' ), esc_attr( $blogname ) ) . "\r\n\r\n";
+				/* translators: %s Username */
 				$message .= sprintf( __( 'Username: %s', 'woocommerce-product-generator' ), esc_attr( $user->user_login ) ) . "\r\n\r\n";
+				/* translators: %s Password */
 				$message .= sprintf( __( 'Password: %s', 'woocommerce-product-generator' ), esc_attr( $user_pass ) ) . "\r\n\r\n";
 				$message .= esc_html__( 'The user has the role of a Shop Manager.', 'woocommerce-product-generator' ) . "\r\n";
 
+				/* translators: %s Blogname */
 				@wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Product Generator User', 'woocommerce-product-generator' ), $blogname ), $message);
 			}
 		}
@@ -1277,27 +1304,25 @@ class WooCommerce_Product_Generator {
 			'https://api.unsplash.com/search/photos'
 		);
 
-		$ch = curl_init( $url );
-		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt( $ch, CURLOPT_HTTPHEADER, [
-			'Authorization: Client-ID ' . $access_key
-		] );
-		$response = curl_exec( $ch );
+		$response = wp_remote_get(
+			$url,
+			array(
+				'headers' => array( 'Authorization' => 'Client-ID ' . $access_key ),
+				'timeout' => 30
+			)
+		);
 
-		if ( curl_errno( $ch ) ) {
-			curl_close( $ch );
+		if ( is_wp_error( $response ) ) {
 			self::log(
 				sprintf(
 					'Product Generator Unsplash search request produced error %s',
-					curl_error($ch)
+					$response->get_error_message()
 				)
 			);
 			return null;
 		}
 
-		$http_code = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
-		curl_close( $ch );
-
+		$http_code = wp_remote_retrieve_response_code( $response );
 		if ( $http_code !== 200 ) {
 			self::log(
 				sprintf(
@@ -1308,7 +1333,7 @@ class WooCommerce_Product_Generator {
 			return null;
 		}
 
-		$data = json_decode( $response, true );
+		$data = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		if ( json_last_error() !== JSON_ERROR_NONE ) {
 			self::log(

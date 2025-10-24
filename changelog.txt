@@ -3,6 +3,13 @@
 = 3.1.0 =
 * WordPress 6.8 compatible.
 * WooCommerce 10.3 compatible.
+* Added missing WC dependency check.
+* Added missing escaping wherever necessary.
+* Added missing sanitization where necessary.
+* Fixed warning for deprecated argument in add_option().
+* Refactored the way that the image placeholder is rendered.
+* Refactored cURL implementation using wp_remote_get().
+* Replaced deprecated get_page_by_title() function.
 
 = 3.0.0 =
 * WordPress 6.8 compatible.
