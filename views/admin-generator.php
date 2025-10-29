@@ -45,6 +45,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<p>
 				<label><?php esc_html_e( 'Per Run', 'woocommerce-product-generator' );?>
 				<input type="text" name="per_run" value="<?php echo esc_attr( $per_run );?>" />
+				<?php /* translators: %d Max number of products per run */ ?>
 				<?php printf( esc_html__( 'Maximum %d', 'woocommerce-product-generator' ), esc_attr( self::MAX_PER_RUN ) ); ?>
 				</label>
 			</p>
@@ -54,6 +55,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<?php esc_html_e( 'Images', 'woocommerce-product-generator' );?>
 					&nbsp;
 					<input type="checkbox" name="use_unsplash" value="1" <?php echo $use_unsplash ? 'checked' : ''; ?> />
+					<?php /* translators: %s Unsplash URL */ ?>
 					<?php printf( esc_html__( 'Get images from %s', 'woocommerce-product-generator' ), '<a href="https://unsplash.com/">Unsplash</a>' ); ?>
 				</label>
 			</p>
