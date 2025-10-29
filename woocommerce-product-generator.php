@@ -250,9 +250,9 @@ class WooCommerce_Product_Generator {
 			isset( $_POST['product-generator'] ) &&
 			wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['product-generator'] ) ), 'admin' ) 
 		) {
-			$limit        = !empty( $_POST['limit'] ) ? intval( trim( wp_unslash( $_POST['limit'] ) ) ) : self::DEFAULT_LIMIT;
-			$per_run      = !empty( $_POST['per_run'] ) ? intval( trim( wp_unslash( $_POST['per_run'] ) ) ) : self::DEFAULT_PER_RUN;
-			$use_unsplash = !empty( $_POST['use_unsplash'] ) ?  trim( wp_unslash( $_POST['use_unsplash'] ) ) : '';
+			$limit        = !empty( $_POST['limit'] ) ? intval( trim( wp_unslash( $_POST['limit'] ) ) ) : self::DEFAULT_LIMIT; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			$per_run      = !empty( $_POST['per_run'] ) ? intval( trim( wp_unslash( $_POST['per_run'] ) ) ) : self::DEFAULT_PER_RUN; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			$use_unsplash = !empty( $_POST['use_unsplash'] ) ?  trim( wp_unslash( $_POST['use_unsplash'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			$unsplash_access_key = !empty( $_POST['unsplash_access_key'] ) ? trim( sanitize_text_field( wp_unslash( $_POST['unsplash_access_key'] ) ) ) : '';
 			$titles       = !empty( $_POST['titles'] ) ? sanitize_textarea_field( wp_unslash( $_POST['titles'] ) ) : '';
 			$contents     = !empty( $_POST['contents'] ) ? sanitize_textarea_field( wp_unslash( $_POST['contents'] ) ) : '';
@@ -1309,25 +1309,27 @@ class WooCommerce_Product_Generator {
 			'https://api.unsplash.com/search/photos'
 		);
 
-		$response = wp_remote_get(
-			$url,
-			array(
-				'headers' => array( 'Authorization' => 'Client-ID ' . $access_key ),
-				'timeout' => 30
-			)
-		);
+		$ch = curl_init( $url );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt( $ch, CURLOPT_HTTPHEADER, [
+				'Authorization: Client-ID ' . $access_key
+		] );
+		$response = curl_exec( $ch );
 
-		if ( is_wp_error( $response ) ) {
+		if ( curl_errno( $ch ) ) {
+			curl_close( $ch );
 			self::log(
 				sprintf(
 					'Product Generator Unsplash search request produced error %s',
-					$response->get_error_message()
+					curl_error($ch)
 				)
 			);
 			return null;
 		}
 
-		$http_code = wp_remote_retrieve_response_code( $response );
+		$http_code = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+		curl_close( $ch );
+
 		if ( $http_code !== 200 ) {
 			self::log(
 				sprintf(
@@ -1338,7 +1340,7 @@ class WooCommerce_Product_Generator {
 			return null;
 		}
 
-		$data = json_decode( wp_remote_retrieve_body( $response ), true );
+		$data = json_decode( $response, true );
 
 		if ( json_last_error() !== JSON_ERROR_NONE ) {
 			self::log(
