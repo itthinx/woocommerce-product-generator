@@ -1,5 +1,5 @@
 === Product Generator for WooCommerce ===
-Contributors: itthinx, proaktion, helgatheviking, jamesgol, akshayar
+Contributors: itthinx, proaktion, helgatheviking, jamesgol, akshayar, gtsiokos
 Donate link: https://www.itthinx.com/shop/
 Tags: benchmark, generator, performance, product, woocommerce
 Requires at least: 6.5
