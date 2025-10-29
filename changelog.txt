@@ -1,5 +1,28 @@
 == Product Generator for WooCommerce by itthinx - changelog.txt ==
 
+= 3.1.0 =
+* WordPress 6.8 compatible.
+* WooCommerce 10.3 compatible.
+* Added missing WC dependency check.
+* Added missing escaping to rendered elements.
+* Added necessary sanitization when verifying nonces.
+* Fixed warning for deprecated argument in add_option.
+* Changed the way that the image placeholder is rendered.
+* Replaced deprecated get_page_by_title function.
+* Added validation hint WordPress.DB.DirectDatabaseQuery.NoCaching
+* Added validation hint WordPress.DB.DirectDatabaseQuery.DirectQuery
+* Added validation hint WordPress.WP.I18n.MissingTranslatorsComment
+* Added validation hint WordPress.WP.AlternativeFunctions.rand_rand
+* Added validation hint PluginCheck.CodeAnalysis.DiscouragedFunctions.load_plugin_textdomainFound
+* Added validation hint WordPress.WP.AlternativeFunctions.curl_curl_error
+* Added validation hint WordPress.WP.AlternativeFunctions.curl_curl_init
+* Added validation hint WordPress.WP.AlternativeFunctions.curl_curl_setopt
+* Added validation hint WordPress.WP.AlternativeFunctions.curl_curl_exec
+* Added validation hint WordPress.WP.AlternativeFunctions.curl_curl_errno
+* Added validation hint WordPress.WP.AlternativeFunctions.curl_curl_close
+* Added validation hint WordPress.WP.AlternativeFunctions.curl_curl_getinfo
+* Added validation hint WordPress.PHP.DevelopmentFunctions.error_log_error_log
+
 = 3.0.0 =
 * WordPress 6.8 compatible.
 * Requires at least WordPress 6.5.

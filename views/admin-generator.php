@@ -6,10 +6,16 @@
  * @package woocommerce-product-generator
  * @since 1.2.0
  *
+ * @phpcs:disable WordPress.WP.I18n.MissingTranslatorsComment
+ *
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 ?>
 
-<h1><?php _e( 'Product Generator', 'woocommerce-product-generator' ); ?></h1>
+<h1><?php esc_html_e( 'Product Generator', 'woocommerce-product-generator' ); ?></h1>
 
 <div class="product-generator-admin" style="margin-right:1em;">
 
@@ -39,7 +45,8 @@
 			<p>
 				<label><?php esc_html_e( 'Per Run', 'woocommerce-product-generator' );?>
 				<input type="text" name="per_run" value="<?php echo esc_attr( $per_run );?>" />
-				<?php printf( esc_html__( 'Maximum %d', 'woocommerce-product-generator' ), self::MAX_PER_RUN ); ?>
+				<?php /* translators: %d Max number of products per run */ ?>
+				<?php printf( esc_html__( 'Maximum %d', 'woocommerce-product-generator' ), esc_attr( self::MAX_PER_RUN ) ); ?>
 				</label>
 			</p>
 
@@ -48,6 +55,7 @@
 					<?php esc_html_e( 'Images', 'woocommerce-product-generator' );?>
 					&nbsp;
 					<input type="checkbox" name="use_unsplash" value="1" <?php echo $use_unsplash ? 'checked' : ''; ?> />
+					<?php /* translators: %s Unsplash URL */ ?>
 					<?php printf( esc_html__( 'Get images from %s', 'woocommerce-product-generator' ), '<a href="https://unsplash.com/">Unsplash</a>' ); ?>
 				</label>
 			</p>
@@ -69,7 +77,7 @@
 			<p>
 				<label><?php esc_html_e( 'Titles', 'woocommerce-product-generator' ); ?>
 				<br/>
-				<textarea name="titles" style="height:10em;width:90%;"><?php echo htmlentities( $titles ); ?></textarea>
+				<textarea name="titles" style="height:10em;width:90%;"><?php echo esc_textarea( $titles ); ?></textarea>
 				</label>
 			</p>
 
@@ -77,7 +85,7 @@
 				<label>
 				<?php esc_html_e( 'Contents', 'woocommerce-product-generator' ); ?>
 				<br/>
-				<textarea name="contents" style="height:20em;width:90%;"><?php echo htmlentities( $contents ); ?></textarea>
+				<textarea name="contents" style="height:20em;width:90%;"><?php echo esc_textarea( $contents ); ?></textarea>
 				</label>
 			</p>
 
@@ -85,7 +93,7 @@
 				<label>
 				<?php esc_html_e( 'Categories', 'woocommerce-product-generator' ); ?>
 				<br/>
-				<textarea name="categories" style="height:10em;width:90%;"><?php echo htmlentities( $categories ); ?></textarea>
+				<textarea name="categories" style="height:10em;width:90%;"><?php echo esc_textarea( $categories ); ?></textarea>
 				<br/>
 				<?php echo wp_kses_post( __( 'Provide one category per line', 'woocommerce-product-generator' ) ); ?>
 				</label>
@@ -95,7 +103,7 @@
 				<label>
 				<?php esc_html_e( 'Attributes', 'woocommerce-product-generator' ); ?>
 				<br/>
-				<textarea name="attributes" style="height:10em;width:90%;"><?php echo htmlentities( $attributes ); ?></textarea>
+				<textarea name="attributes" style="height:10em;width:90%;"><?php echo esc_textarea( $attributes ); ?></textarea>
 				<br/>
 				<?php echo wp_kses_post( __( 'Each attribute line must use the format: <code>Name | term1, term2, ...</code>', 'woocommerce-product-generator' ) ); ?>
 				</label>
@@ -128,7 +136,7 @@
 		</form>
 	</div>
 
-	<h2><?php _e( 'Single Run', 'woocommerce-product-generator' ); ?></h2>
+	<h2><?php esc_html_e( 'Single Run', 'woocommerce-product-generator' ); ?></h2>
 
 	<div class="generate">
 		<form name="generate" method="post" action="">
