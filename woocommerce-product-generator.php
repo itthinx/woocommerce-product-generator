@@ -1312,7 +1312,7 @@ class WooCommerce_Product_Generator {
 		$ch = curl_init( $url );
 		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt( $ch, CURLOPT_HTTPHEADER, [
-				'Authorization: Client-ID ' . $access_key
+			'Authorization: Client-ID ' . $access_key
 		] );
 		$response = curl_exec( $ch );
 
