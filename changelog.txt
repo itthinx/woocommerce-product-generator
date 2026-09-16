@@ -3,6 +3,7 @@
 = 4.0.0 =
 * WordPress 7.1 compatible.
 * WooCommerce 11.1 compatible.
+* Fixed warning for deprecated function imagedestroy() when using PHP version 8.0.0 or greater.
 
 = 3.2.0 =
 * WordPress 6.9 compatible.
