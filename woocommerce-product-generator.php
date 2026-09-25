@@ -2,7 +2,7 @@
 /**
  * woocommerce-product-generator.php
  *
- * Copyright (c) 2014-2025 "kento" Karim Rahimpur www.itthinx.com
+ * Copyright (c) 2014-2026 "kento" Karim Rahimpur www.itthinx.com
  *
  * This code is released under the GNU General Public License.
  * See COPYRIGHT.txt and LICENSE.txt.
@@ -1176,7 +1176,7 @@ class WooCommerce_Product_Generator {
 			ob_start();
 			imagepng( $image );
 			$output = ob_get_clean();
-			imagedestroy( $image );
+			$image = null;
 		} else {
 			$output = @file_get_contents( WOOPROGEN_PLUGIN_URL . '/images/placeholder.png' );
 			if ( $output === false ) {
