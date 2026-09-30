@@ -29,7 +29,7 @@
  * Donate-Link: https://www.itthinx.com
  * License: GPLv3
  * WC requires at least: 5.8
- * WC tested up to: 11.1
+ * WC tested up to: 11.2
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
