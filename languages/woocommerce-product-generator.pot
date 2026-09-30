@@ -7,7 +7,7 @@
 msgid   ""
 msgstr  "Project-Id-Version: PACKAGE VERSION\n"
         "Report-Msgid-Bugs-To: \n"
-        "POT-Creation-Date: 2025-09-22 23:54+0200\n"
+        "POT-Creation-Date: 2026-09-30 15:33+0200\n"
         "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
         "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
         "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,54 +16,54 @@ msgstr  "Project-Id-Version: PACKAGE VERSION\n"
         "Content-Type: text/plain; charset=CHARSET\n"
         "Content-Transfer-Encoding: 8bit\n"
 
-#: woocommerce-product-generator.php:159
+#: woocommerce-product-generator.php:195
 #, php-format
 msgid   "&#425: %d"
 msgstr  ""
 
-#: woocommerce-product-generator.php:207
+#: woocommerce-product-generator.php:248
 msgid   "Access denied."
 msgstr  ""
 
-#: views/admin-generator.php:96
+#: views/admin-generator.php:104
 msgid   "Attributes"
 msgstr  ""
 
-#: views/admin-generator.php:86
+#: views/admin-generator.php:94
 msgid   "Categories"
 msgstr  ""
 
-#: views/admin-generator.php:78
+#: views/admin-generator.php:86
 msgid   "Contents"
 msgstr  ""
 
-#: views/admin-generator.php:153
+#: views/admin-generator.php:161
 msgid   "Continuous AJAX Run"
 msgstr  ""
 
-#: views/admin-generator.php:100
+#: views/admin-generator.php:108
 msgid   "Each attribute line must use the format: <code>Name | term1, "
         "term2, ...</code>"
 msgstr  ""
 
-#: views/admin-generator.php:138
+#: views/admin-generator.php:146
 msgid   "Generate up to &hellip;"
 msgstr  ""
 
-#: woocommerce-product-generator.php:153
+#: woocommerce-product-generator.php:187
 msgid   "Generating"
 msgstr  ""
 
-#: woocommerce-product-generator.php:158
+#: woocommerce-product-generator.php:193
 msgid   "Generation Stats"
 msgstr  ""
 
-#: views/admin-generator.php:51
+#: views/admin-generator.php:59
 #, php-format
 msgid   "Get images from %s"
 msgstr  ""
 
-#: views/admin-generator.php:66
+#: views/admin-generator.php:74
 msgid   "If you want to measure the performance of your site while generating "
         "products using the logged stats and those provided under "
         "<em>Continuous AJAX Run</em>, make sure to <strong>disable</strong> "
@@ -71,178 +71,178 @@ msgid   "If you want to measure the performance of your site while generating "
         "much higher than the product generation itself."
 msgstr  ""
 
-#: views/admin-generator.php:48
+#: views/admin-generator.php:55
 msgid   "Images"
 msgstr  ""
 
-#: views/admin-generator.php:19
+#: views/admin-generator.php:25
 msgid   "It is <strong>NOT</strong> recommended to use this on a production "
         "site."
 msgstr  ""
 
-#: views/admin-generator.php:34
+#: views/admin-generator.php:40
 msgid   "Limit"
 msgstr  ""
 
-#: woocommerce-product-generator.php:157
+#: woocommerce-product-generator.php:192
 msgid   "Limit reached, increase it to generate more products"
 msgstr  ""
 
-#: views/admin-generator.php:42
+#: views/admin-generator.php:49
 #, php-format
 msgid   "Maximum %d"
 msgstr  ""
 
-#: woocommerce-product-generator.php:994
+#: woocommerce-product-generator.php:1060
 #, php-format
 msgid   "Password: %s"
 msgstr  ""
 
-#: views/admin-generator.php:40
+#: views/admin-generator.php:46
 msgid   "Per Run"
 msgstr  ""
 
-#: woocommerce-product-generator.php:164
+#: woocommerce-product-generator.php:205
 #, php-format
 msgid   "Performance: %s Products per Second"
 msgstr  ""
 
-#: views/admin-generator.php:12 woocommerce-product-generator.php:139
-#: woocommerce-product-generator.php:140 woocommerce-product-generator.php:181
+#: views/admin-generator.php:18 woocommerce-product-generator.php:173
+#: woocommerce-product-generator.php:174 woocommerce-product-generator.php:222
 msgid   "Product Generator"
 msgstr  ""
 
-#: woocommerce-product-generator.php:126
+#: woocommerce-product-generator.php:152
 #, php-format
 msgid   "Product Generator for WooCommerce requires at least WooCommerce %s "
         "in order to function. Please upgrade WooCommerce."
 msgstr  ""
 
-#: views/admin-generator.php:25
+#: views/admin-generator.php:31
 msgid   "Product generation stats and performance are logged to your site's "
         "debug.log, unless the <code>WPG_LOG</code> constant is used to "
         "disable that by setting it to false in your site's <code>wp-"
         "config.php</code>."
 msgstr  ""
 
-#: woocommerce-product-generator.php:992
+#: woocommerce-product-generator.php:1056
 #, php-format
 msgid   "Product generator user created on %s:"
 msgstr  ""
 
-#: views/admin-generator.php:63
+#: views/admin-generator.php:71
 msgid   "Product images are generated if this is disabled or can not be "
         "obtained."
 msgstr  ""
 
-#: views/admin-generator.php:90
+#: views/admin-generator.php:98
 msgid   "Provide one category per line"
 msgstr  ""
 
-#: views/admin-generator.php:113 views/admin-generator.php:124
+#: views/admin-generator.php:121 views/admin-generator.php:132
 msgid   "Reset"
 msgstr  ""
 
-#: views/admin-generator.php:118
+#: views/admin-generator.php:126
 msgid   "Reset to defaults"
 msgstr  ""
 
-#: views/admin-generator.php:146 views/admin-generator.php:156
+#: views/admin-generator.php:154 views/admin-generator.php:164
 msgid   "Run"
 msgstr  ""
 
-#: woocommerce-product-generator.php:155
+#: woocommerce-product-generator.php:190
 msgid   "Running"
 msgstr  ""
 
-#: views/admin-generator.php:107
+#: views/admin-generator.php:115
 msgid   "Save"
 msgstr  ""
 
-#: woocommerce-product-generator.php:160
+#: woocommerce-product-generator.php:197
 #, php-format
 msgid   "Simple: %d"
 msgstr  ""
 
-#: views/admin-generator.php:131
+#: views/admin-generator.php:139
 msgid   "Single Run"
 msgstr  ""
 
-#: views/admin-generator.php:157
+#: views/admin-generator.php:165
 msgid   "Stop"
 msgstr  ""
 
-#: woocommerce-product-generator.php:156
+#: woocommerce-product-generator.php:191
 msgid   "Stopped"
 msgstr  ""
 
-#: views/admin-generator.php:30
+#: views/admin-generator.php:36
 msgid   "The continuous generator runs at most once per second, creating up "
         "to the indicated number of products per run."
 msgstr  ""
 
-#: views/admin-generator.php:31
+#: views/admin-generator.php:37
 msgid   "The continuous generator will try to create new products until "
         "stopped, or the total number of products reaches the indicated limit."
 msgstr  ""
 
-#: views/admin-generator.php:21
+#: views/admin-generator.php:27
 msgid   "The plugin will <strong>NOT</strong> clean up the data it has "
         "created."
 msgstr  ""
 
-#: views/admin-generator.php:23
+#: views/admin-generator.php:29
 msgid   "The plugin will create a <em>product-generator</em> user in the role "
         "of a <em>Shop Manager</em>."
 msgstr  ""
 
-#: woocommerce-product-generator.php:995
+#: woocommerce-product-generator.php:1061
 msgid   "The user has the role of a Shop Manager."
 msgstr  ""
 
-#: views/admin-generator.php:17
+#: views/admin-generator.php:23
 msgid   "This produces demo products for testing purposes."
 msgstr  ""
 
-#: woocommerce-product-generator.php:163
+#: woocommerce-product-generator.php:203
 #, php-format
 msgid   "Time: %s seconds"
 msgstr  ""
 
-#: views/admin-generator.php:70
+#: views/admin-generator.php:78
 msgid   "Titles"
 msgstr  ""
 
-#: woocommerce-product-generator.php:154
+#: woocommerce-product-generator.php:189
 #, php-format
 msgid   "Total Products: %d"
 msgstr  ""
 
-#: views/admin-generator.php:55
+#: views/admin-generator.php:63
 msgid   "Unsplash Access Key"
 msgstr  ""
 
-#: woocommerce-product-generator.php:993
+#: woocommerce-product-generator.php:1058
 #, php-format
 msgid   "Username: %s"
 msgstr  ""
 
-#: woocommerce-product-generator.php:161
+#: woocommerce-product-generator.php:199
 #, php-format
 msgid   "Variable: %d"
 msgstr  ""
 
-#: woocommerce-product-generator.php:162
+#: woocommerce-product-generator.php:201
 #, php-format
 msgid   "Variations: %d"
 msgstr  ""
 
-#: views/admin-generator.php:59
+#: views/admin-generator.php:67
 msgid   "You must provide your valid Access Key to be able to use images from "
         "Unsplash."
 msgstr  ""
 
-#: woocommerce-product-generator.php:997
+#: woocommerce-product-generator.php:1064
 #, php-format
 msgid   "[%s] Product Generator User"
 msgstr  ""

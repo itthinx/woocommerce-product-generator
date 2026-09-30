@@ -2,7 +2,7 @@
 /**
  * woocommerce-product-generator.php
  *
- * Copyright (c) 2014-2025 "kento" Karim Rahimpur www.itthinx.com
+ * Copyright (c) 2014-2026 "kento" Karim Rahimpur www.itthinx.com
  *
  * This code is released under the GNU General Public License.
  * See COPYRIGHT.txt and LICENSE.txt.
@@ -23,26 +23,30 @@
  * Plugin Name: Product Generator for WooCommerce
  * Plugin URI: https://www.itthinx.com/plugins/woocommerce-product-generator/
  * Description: A sample product generator for WooCommerce.
- * Version: 3.2.0
+ * Version: 4.0.0
  * Author: itthinx
  * Author URI: https://www.itthinx.com
  * Donate-Link: https://www.itthinx.com
  * License: GPLv3
  * WC requires at least: 5.8
- * WC tested up to: 10.4
+ * WC tested up to: 11.2
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'WOOPROGEN_PLUGIN_VERSION', '3.2.0' );
+define( 'WOOPROGEN_PLUGIN_VERSION', '4.0.0' );
 define( 'WOOPROGEN_PLUGIN_DOMAIN', 'woocommerce-product-generator' );
 define( 'WOOPROGEN_PLUGIN_URL', WP_PLUGIN_URL . '/woocommerce-product-generator' );
 define( 'WOOPROGEN_PLUGIN_FILE', __FILE__ );
 
 if ( !defined( 'WPG_LOG' ) ) {
 	define( 'WPG_LOG', true );
+}
+
+if ( defined( 'WP_CLI' ) && WP_CLI ) {
+	require_once __DIR__ . '/includes/class-woocommerce-product-generator-cli.php';
 }
 
 // @phpcs:ignore WordPress.WP.AlternativeFunctions.rand_rand
@@ -704,10 +708,16 @@ class WooCommerce_Product_Generator {
 				if ( $url !== null ) {
 					$context = stream_context_create( ['http' => ['ignore_errors' => true]] );
 					$unsplash_image = file_get_contents( $url, false, $context );
-					if ( isset( $http_response_header[0] ) ) {
+
+					if ( function_exists( 'http_get_last_response_headers' ) ) {
+						$headers = http_get_last_response_headers();
+					} else {
+						$headers = $http_response_header ?? [];
+					}
+					if ( isset( $headers[0] ) ) {
 						if (
-							strpos( $http_response_header[0], '200' ) !== false || // OK
-							strpos( $http_response_header[0], '302' ) !== false // Found
+							strpos( $headers[0], '200' ) !== false || // OK
+							strpos( $headers[0], '302' ) !== false // Found
 						) {
 							$unsplash_success = true;
 						}
@@ -1176,7 +1186,7 @@ class WooCommerce_Product_Generator {
 			ob_start();
 			imagepng( $image );
 			$output = ob_get_clean();
-			imagedestroy( $image );
+			$image = null;
 		} else {
 			$output = @file_get_contents( WOOPROGEN_PLUGIN_URL . '/images/placeholder.png' );
 			if ( $output === false ) {

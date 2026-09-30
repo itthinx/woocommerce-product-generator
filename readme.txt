@@ -4,8 +4,8 @@ Donate link: https://www.itthinx.com/shop/
 Tags: benchmark, generator, performance, product, woocommerce
 Requires at least: 6.5
 Requires PHP: 7.4.0
-Tested up to: 6.9
-Stable tag: 3.2.0
+Tested up to: 7.1
+Stable tag: 4.0.0
 License: GPLv3
 
 A sample product generator for WooCommerce.
@@ -34,6 +34,15 @@ During the <em>Continuous AJAX Run</em>, the cumulative product generation stats
 The product generation stats and performance are also logged to the site's debug.log. To disable, add this to your site's wp-config.php: <code>define( 'WPG_LOG', false );</code>
 
 With the stats provided, this plugin also provides an easy way to benchmark a site: providing an insight into the site's performance measured by products generated per second. If you want to measure the performance of your site while generating products, make sure to <strong>disable</strong> the option <em>Get images from Unsplash</em>, as the impact of getting images via the network will be much higher than the product generation itself.
+
+### WP-CLI ###
+
+The generator can be used to generate products from the terminal. Use the `product-generator` command to create one or more products. Examples:
+
+- To generate one product: `wp product-generator`
+- To generate ten products: `wp product-generator --count=10`
+
+### Customization ###
 
 Fork the [Repository](https://github.com/itthinx/woocommerce-product-generator) to customize the products generated as desired.
 

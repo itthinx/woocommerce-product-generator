@@ -1,5 +1,13 @@
 == Product Generator for WooCommerce by itthinx - changelog.txt ==
 
+= 4.0.0 =
+* WordPress 7.1 compatible.
+* WooCommerce 11.2 compatible.
+* Fixed warning for deprecated function imagedestroy() when using PHP version 8.0.0 or greater.
+* Fixed warning for deprecated variable $http_response_header when using PHP version 8.5 or greater.
+* Added WP CLI command product-generator to generate products with wp-cli. Example: wp product-generator --count=X, to generate X new products.
+* Updated the translation template.
+
 = 3.2.0 =
 * WordPress 6.9 compatible.
 * WooCommerce 10.4 compatible.
