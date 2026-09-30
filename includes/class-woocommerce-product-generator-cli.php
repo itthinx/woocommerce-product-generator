@@ -26,7 +26,7 @@ class WooCommerce_Product_Generator_CLI {
 	}
 
 	/**
-	 * Generates mock products via WooCommerce Product Generator.
+	 * Generates products via WooCommerce Product Generator.
 	 *
 	 * Command line arguments:
 	 *
